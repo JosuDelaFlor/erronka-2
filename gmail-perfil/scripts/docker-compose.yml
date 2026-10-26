@@ -9,7 +9,7 @@ services:
       - "3306:3306"
     volumes:
       # Carga automáticamente el esquema al iniciar el contenedor por primera vez
-      - ./scripts/db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
   smtp4dev:
     image: rnwood/smtp4dev:v3
@@ -22,8 +22,8 @@ services:
 
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: DockerFile
     depends_on:
       - db
       - smtp4dev
