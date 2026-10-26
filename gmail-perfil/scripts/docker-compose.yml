@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ziber_db
+    ports:
+      - "3306:3306"
+    volumes:
+      # Carga automáticamente el esquema al iniciar el contenedor por primera vez
+      - ./scripts/db.sql:/docker-entrypoint-initdb.d/init.sql
+
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      # Puerto para la interfaz web (ver correos)
+      - "8080:80"
+      # Puerto SMTP para enviar correos desde Python
+      - "2525:25"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+      - smtp4dev
+    # El contenedor app se ejecutará y terminará tras enviar los correos
