@@ -8,7 +8,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./scripts/init/db.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
   smtp4dev:
     image: rnwood/smtp4dev:v3
