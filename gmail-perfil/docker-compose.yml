@@ -9,6 +9,11 @@ services:
       - "3306:3306"
     volumes:
       - ./scripts/init/db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   smtp4dev:
     image: rnwood/smtp4dev:v3
@@ -22,5 +27,7 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - db
-      - smtp4dev
+      db:
+        condition: service_healthy
+      smtp4dev:
+        condition: service_started

@@ -10,7 +10,6 @@ class MySQLClient:
         self._connection: Optional[MySQLConnection] = None
 
     def _connect(self) -> None:
-        """Establece la conexión si no está activa."""
         if not self._connection or not self._connection.is_connected():
             self._connection = mysql.connector.connect(
                 host=self.config.host,
@@ -21,12 +20,10 @@ class MySQLClient:
             )
 
     def _disconnect(self) -> None:
-        """Cierra la conexión activa."""
         if self._connection and self._connection.is_connected():
             self._connection.close()
 
     def fetch_all(self, query: str, params: Optional[tuple] = None) -> List[Dict[str, Any]]:
-        """Ejecuta una consulta SELECT y retorna una lista de diccionarios."""
         self._connect()
         cursor = self._connection.cursor(dictionary=True)
         try:
