@@ -36,8 +36,7 @@ Interfaze guztiak Layer3 moduan daude, eta PA-OT da OT eta DMZ-OT sareen gateway
 ## 5. Kudeaketa-profila
 
 Administrazioa HTTPS eta SSH bidez soilik egiten da (HTTP eta Telnet desgaituta), eta administrazio-ekipotik (192.168.20.10) bakarrik.
-
-[Irudia: Network → Network Profiles → Interface Mgmt → MGMT-OT]
+![05-kudeaketa](img/05-kudeaketa-1.png)
 
 ## 6. Bideratzea
 
