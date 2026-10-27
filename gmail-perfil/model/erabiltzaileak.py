@@ -1,3 +1,4 @@
+#Hemen modeloa definitzen da, erabiltzaile bakoitzaren informazioa jasotzen da. 
 class Erabiltzaileak:
 
     def __init__(self,id: int,username: str,password: str,izena: str,abizena: str,

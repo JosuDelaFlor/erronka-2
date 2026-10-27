@@ -1,3 +1,4 @@
+#hemen definitzen dira datu baseko eta SMTP zerbitzuko konfigurazioak, honen bidez MySQL datu basearekin konektatu eta emailak bidaltzeko erabiltzaileei, profilean argazkirik ez dutenak.
 import os
 
 from dataclasses import dataclass

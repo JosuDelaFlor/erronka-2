@@ -1,3 +1,4 @@
+#Mainean datu basea konektatu eta erabiltzaileak lortu, argazkirik ez duten erabiltzaileei emailak bidaltzeko.
 from config.settings import settings
 from services.mysql_client import MySQLClient
 from services.smtp_client import SMTPClient

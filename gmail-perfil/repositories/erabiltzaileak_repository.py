@@ -1,3 +1,4 @@
+#hemen erabiltzaileak lortu ahal dira datu baseko taulatik, erabiltzaile bakoitzaren informazioa jasotzeko.
 from typing import List
 from services.mysql_client import MySQLClient
 from model.erabiltzaileak import Erabiltzaileak

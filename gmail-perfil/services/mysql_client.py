@@ -1,3 +1,4 @@
+#hemen definitzen da MySQLClient klasea, zeinaren bidez MySQL datu basearekin konektatu eta datuak eskuratu daitezkeen.
 import mysql.connector
 
 from mysql.connector.connection import MySQLConnection

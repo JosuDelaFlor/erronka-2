@@ -1,3 +1,5 @@
+
+#hemen definitzen da SMTPClient klasea, zeinaren bidez emailak bidali daitezkeen erabiltzaileei, profilean argazkirik ez dutenak.
 import smtplib
 from email.message import EmailMessage
 from config.settings import SMTPConfig
@@ -11,7 +13,7 @@ class SMTPClient:
         mezua["From"] = self.config.sender
         mezua["To"] = emaila
         mezua["Subject"] = "Profileko argazkia derrigorrezkoa da"
-        
+        #bidaliko den mezuaren edukia
         mezua.set_content(
             f"Kaixo {izena},\n\n"
             "Zure profilean oraindik ez duzu argazkirik igo.\n"
