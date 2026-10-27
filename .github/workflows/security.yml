@@ -1,0 +1,33 @@
+name: Security and tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web-aplikazioa
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - name: PHP syntax
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+      - name: Security regression checks
+        run: |
+          ! grep -RInE "md5\s*\(|SELECT .*\\$(_GET|_POST)|mysqli_query\(.*\\." --include='*.php' .
+          test -f src/Core/security.php
+          grep -q "password_verify" src/Modules/Auth/login.php
+          grep -q "csrf_token" src/Modules/Account/account.php
+
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: semgrep/semgrep-action@v1
+        with:
+          config: p/php

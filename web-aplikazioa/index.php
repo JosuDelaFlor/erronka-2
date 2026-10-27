@@ -1,15 +1,20 @@
 <?php
 
+require_once __DIR__ . "/config/config.php";
+session_set_cookie_params([
+    'httponly' => true,
+    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    'samesite' => 'Lax',
+]);
 session_start();
-
-include("conf.php");
-include("includes/mysql.php");
+require_once __DIR__ . "/src/Infrastructure/database.php";
+require_once __DIR__ . "/src/Core/security.php";
 
 ?>
 
 <html>
 <head>
-<title><?php echo $enpresa; ?></title>
+<title><?php echo e($enpresa); ?></title>
 </html>
 <link rel=stylesheet type=text/css href=style.css>
 </head>
@@ -31,11 +36,11 @@ include("includes/mysql.php");
 <hr width=1000 size=5>
 
 <?php
-if(isset($_SESSION['admin']) && ($_SESSION['admin']==1)){
+if(!empty($_SESSION['user_id'])){
   echo "<h3>Ongi Etorri ";
 
-  echo $_SESSION['username'];
-  if ($_SESSION['username']== "admin@bdweb"){
+  echo e($_SESSION['username']);
+  if (!empty($_SESSION['is_admin'])){
       echo " | <a href=".$_SERVER['PHP_SELF']."?action=account>Kontua</a> | <a href=".$_SERVER['PHP_SELF']."?action=updel>Igo/Ezabatu</a> | <a href=".$_SERVER['PHP_SELF']."?action=logout>Saioa itxi</a> | <a href=".$_SERVER['PHP_SELF'].">Hasiera</a></h3>";
   }
   else {
@@ -48,8 +53,9 @@ else{
 }
 
 ?>
-<form name="search" method="get" action=<?php echo $_SERVER['PHP_SELF']."?action=search" ?> id="search">
-    <input type="text" value="" name="keyword"/>
+<form name="search" method="get" action="index.php" id="search">
+    <input type="hidden" name="action" value="search"/>
+    <input type="text" value="<?php echo e($_GET['keyword'] ?? ''); ?>" name="keyword"/>
     <input type="submit" name="search" value="Bilatu"/>
 </form>
 
@@ -60,45 +66,46 @@ else{
 if(isset($_GET['action'])){
     switch($_GET['action']){
       case("updel"):
-        if(isset($_SESSION['admin']) && ($_SESSION['admin']==1) && ($_SESSION['username']=='admin@bdweb')){
-          include("includes/updel.php");
+        if(!empty($_SESSION['is_admin'])){
+          include __DIR__ . "/src/Modules/Catalog/updel.php";
         }else{
           header("Location: ".$_SERVER['PHP_SELF']);
         }
       break;
       case("register"):
-         include("includes/register.php");
+         include __DIR__ . "/src/Modules/Auth/register.php";
       break;
       case("login"):
-        include("includes/login.php");
+        include __DIR__ . "/src/Modules/Auth/login.php";
       break;
       case("description"):
-        include("includes/description.php");
+        include __DIR__ . "/src/Modules/Catalog/description.php";
       break;
       case("search"):
-            include("includes/main.php");
+            include __DIR__ . "/src/Modules/Catalog/main.php";
             break;
       case("account"):
-        if(isset($_SESSION['admin']) && ($_SESSION['admin']==1)){
-          include("includes/account.php");
+        if(!empty($_SESSION['user_id'])){
+          include __DIR__ . "/src/Modules/Account/account.php";
         }else{
           header("Location: ".$_SERVER['PHP_SELF']);
         }
       break;
       case("logout"):
-        if(isset($_SESSION['admin']) && ($_SESSION['admin']==1)){
+        if(!empty($_SESSION['user_id'])){
+          session_unset();
           session_destroy();
-          header("Location: ".$_SERVER['PHP_SELF']);
+          header("Location: index.php");
         }else{
           header("Location: ".$_SERVER['PHP_SELF']);
         }
       break;
       default:
-          include("includes/".$_GET['action'].".php");
+          include __DIR__ . "/src/Modules/Catalog/main.php";
     }
 }
 else{
-    include("includes/main.php");
+    include __DIR__ . "/src/Modules/Catalog/main.php";
 }
 
 ?>
@@ -106,7 +113,7 @@ else{
 <br>
 <hr width=1000 size=5>
 <div align=center>
-    <b>Proiektua <?php echo $version; ?><b> <br>
+    <b>Proiektua <?php echo e($version); ?></b> <br>
 <!--</fieldset>-->
 </div>
 </body>

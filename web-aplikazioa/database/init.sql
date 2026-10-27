@@ -10,6 +10,7 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+USE BDweb;
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -54,15 +55,15 @@ INSERT INTO `produktuak` (`id`, `izena`, `deskripzioa`, `salneurria`, `pic`, `st
 CREATE TABLE `users` (
   `id` mediumint(9) NOT NULL,
   `username` varchar(30) NOT NULL,
-  `password` varchar(60) NOT NULL,
-  `izena` varchar(30) NOT NULL,
-  `abizena` varchar(60) NOT NULL,
-  `hiria` varchar(60) NOT NULL,
-  `lurraldea` varchar(60) NOT NULL,
-  `herrialdea` varchar(30) NOT NULL,
-  `postakodea` int(5) NOT NULL,
-  `telefonoa` int(9) NOT NULL,
-  `irudia` varchar(60) NOT NULL
+  `password` varchar(255) NOT NULL,
+  `izena` varchar(30) NOT NULL DEFAULT '',
+  `abizena` varchar(60) NOT NULL DEFAULT '',
+  `hiria` varchar(60) NOT NULL DEFAULT '',
+  `lurraldea` varchar(60) NOT NULL DEFAULT '',
+  `herrialdea` varchar(30) NOT NULL DEFAULT '',
+  `postakodea` int(5) NOT NULL DEFAULT 0,
+  `telefonoa` int(9) NOT NULL DEFAULT 0,
+  `irudia` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -70,8 +71,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `izena`, `abizena`, `hiria`, `lurraldea`, `herrialdea`, `postakodea`, `telefonoa`, `irudia`) VALUES
-(1, 'admin@bdweb', '5f4dcc3b5aa765d61d8327deb882cf99', 'admin', '', 'eibar', 'gipuzkoa', 'euskal herria', 20600, 121212121, 'Soy_Admin.png'),
-(2, 'izaskun@uni.eus', '5f4dcc3b5aa765d61d8327deb882cf99', 'izaskun', 'ffff', 'ss', 'ddd', 'España', 48280, 121232343, 'usuario.jpg');
+(1, 'admin@bdweb', '$2y$12$vtORucerfw2ftAEQsTR8PegaWBgIme/mDoffqTRF67qW.vQv9oD76', 'admin', '', 'eibar', 'gipuzkoa', 'euskal herria', 20600, 121212121, 'Soy_Admin.png');
 
 --
 -- Índices para tablas volcadas
