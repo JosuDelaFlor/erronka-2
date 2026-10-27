@@ -1,11 +1,10 @@
 <?php
 
 //MySQL
-$mysql_host = "localhost";
+$mysql_host = "db";
 $mysql_user = "root";
-$mysql_pass = "";
+$mysql_pass = "rootpassword";
 $mysql_db = "BDweb";
-
 //Gallery
 $enpresa = "Proiektua";
 $version = "1.0";
