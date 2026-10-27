@@ -11,7 +11,7 @@
 
 3. Abre <http://localhost:8081>.
 
-La aplicación PHP y MySQL se ejecutan en contenedores separados. MySQL no publica ningún puerto en el host; solo es accesible desde la red interna de Compose. El usuario inicial es `admin@bdweb` con la contraseña temporal `password`; debe cambiarse inmediatamente en un entorno real.
+La aplicación PHP y MySQL se ejecutan en contenedores separados. MySQL no publica ningún puerto en el host; solo es accesible desde la red privada de Compose. El puerto HTTP `8090` se publica para el acceso local; en producción debe protegerse mediante HTTPS y un firewall. El usuario inicial es `admin@bdweb` con la contraseña temporal `password`; debe cambiarse inmediatamente en un entorno real.
 
 ## Estructura
 

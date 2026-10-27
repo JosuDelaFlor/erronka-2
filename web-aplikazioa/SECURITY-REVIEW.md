@@ -43,7 +43,7 @@ Las siguientes PoC son referencias para reproducir la evidencia previa en un lab
 | `src/Modules/Catalog/main.php`, `description.php`, `updel.php` | Modificados | CSRF, autorización, consultas preparadas, validación y XSS. |
 | `index.php`, `config/config.php`, `src/Infrastructure/database.php` | Modificados | Punto de entrada, configuración por entorno, sesiones seguras y errores no verbosos. |
 | `database/init.sql` | Modificado | Hash seguro, longitud adecuada y base de datos explícita. |
-| `Dockerfile`, `docker/apache.conf`, `docker-compose.yml` | Nuevos/modificados | Build reproducible, red interna y defensa de uploads. |
+| `Dockerfile`, `docker/apache.conf`, `docker-compose.yml` | Nuevos/modificados | Build reproducible, red privada sin puerto MySQL publicado, publicación HTTP local y defensa de uploads. |
 | `.dockerignore` | Nuevo | Evita incluir secretos, dumps SQL, documentación y archivos de desarrollo en la imagen. |
 | `.env.example`, `.gitignore` | Nuevos | Gestión segura de configuración local y exclusión de secretos. |
 | `uploads/.gitkeep` | Nuevo | Mantiene el directorio de uploads vacío y preparado para el volumen de archivos. |
