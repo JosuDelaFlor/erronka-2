@@ -11,8 +11,15 @@ class DatabaseConfig:
     database: str = os.getenv("DB_NAME", "ziber_db")
 
 @dataclass(frozen=True)
+class SMTPConfig:
+    host: str = os.getenv("SMTP_HOST", "smtp4dev")
+    port: int = int(os.getenv("SMTP_PORT", 25))
+    sender: str = os.getenv("SMTP_SENDER", "avisos@ziber.local")
+    timeout: int = int(os.getenv("SMTP_TIMEOUT", 15))
+
+@dataclass(frozen=True)
 class Settings:
     db: DatabaseConfig = DatabaseConfig()
+    smtp: SMTPConfig = SMTPConfig()
 
-# Instantzia globala
 settings = Settings()

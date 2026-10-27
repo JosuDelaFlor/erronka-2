@@ -34,7 +34,7 @@ CREATE TABLE `produktuak` (
   `izena` varchar(30) NOT NULL,
   `deskripzioa` varchar(150) NOT NULL,
   `salneurria` float NOT NULL,
-  `pic` varchar(60) NOT NULL,
+  `pic` varchar(60),
   `stock` int(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -45,7 +45,8 @@ CREATE TABLE `produktuak` (
 INSERT INTO `produktuak` (`id`, `izena`, `deskripzioa`, `salneurria`, `pic`, `stock`) VALUES
 (1, 'produktu 1', '            produktu 1ren deskripzioa        ', 12, 'generikoa.jpg', 5),
 (2, 'produktu 2', 'produktu 2ren deskripzioa', 10, 'generikoa.jpg', 7),
-(4, 'produktu 3', 'hirugarrena da, etiketa barik', 8, 'producto3.jpg', 3);
+(4, 'produktu 3', 'hirugarrena da, etiketa barik', 8, 'producto3.jpg', 3),
+(3, 'produktu 4', 'laugarrena da, etiketa barik', 15, null, 2);
 
 -- --------------------------------------------------------
 
@@ -64,7 +65,7 @@ CREATE TABLE `users` (
   `herrialdea` varchar(30) NOT NULL,
   `postakodea` int(5) NOT NULL,
   `telefonoa` int(9) NOT NULL,
-  `irudia` varchar(60) NOT NULL
+  `irudia` varchar(60)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -73,7 +74,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `password`, `izena`, `abizena`, `hiria`, `lurraldea`, `herrialdea`, `postakodea`, `telefonoa`, `irudia`) VALUES
 (1, 'admin@bdweb', '5f4dcc3b5aa765d61d8327deb882cf99', 'admin', '', 'eibar', 'gipuzkoa', 'euskal herria', 20600, 121212121, 'Soy_Admin.png'),
-(2, 'izaskun@uni.eus', '5f4dcc3b5aa765d61d8327deb882cf99', 'izaskun', 'ffff', 'ss', 'ddd', 'España', 48280, 121232343, 'usuario.jpg');
+(2, 'izaskun@uni.eus', '5f4dcc3b5aa765d61d8327deb882cf99', 'izaskun', 'ffff', 'ss', 'ddd', 'España', 48280, 121232343, 'usuario.jpg'),
+(3, 'jose@uni.eus', '5f4dcc3b5aa765d61d8327deb882cf99', 'jose', 'gggg', 'bb', 'ccc', 'Francia', 48281, 121232344, null);
 
 --
 -- Índices para tablas volcadas

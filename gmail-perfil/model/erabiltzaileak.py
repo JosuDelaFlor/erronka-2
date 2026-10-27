@@ -16,4 +16,6 @@ class Erabiltzaileak:
         self.irudia = irudia
 
     def argazkia_du(self) -> bool:
-        return bool(self.irudia.strip())
+        if self.irudia is None or self.irudia.strip() == "":
+            return False
+        return True
