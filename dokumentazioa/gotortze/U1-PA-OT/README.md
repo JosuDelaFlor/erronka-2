@@ -1,12 +1,8 @@
 # U1 – PA-OT konfigurazioa
 
-Ugarteburu Torlojuak · 2. Erronka
-
 ## 1. Makina birtuala (IsardVDI)
 
 PA-VM IsardVDI-n dago, PA-IT-ren txantiloi beretik sortuta (2 vCPU, Isard-eko kuota dela eta). Lehen sare-txartela kudeaketa-ataka da (Default); ethernet1/1 U1-IT sarean (Ziber-T12) dago, eta hortik konektatzen da PA-IT-ra. ethernet1/2 U1-OT (Ziber-T13) eta ethernet1/3 U1-DMZOT (Ziber-T14) dira.
-
-[Irudia: Isard – PA-OT mahaigainaren sareak eta MAC helbideak]
 
 ## 2. Hasierako konfigurazioa (CLI)
 
