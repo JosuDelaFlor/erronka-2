@@ -94,6 +94,46 @@ Verificaciones automatizadas ejecutadas:
 - `git diff --check`: correcto.
 - `docker compose build`: pendiente de ejecutar con el daemon Docker/Podman iniciado.
 
+## Pruebas unitarias y CI/CD
+
+Inicialmente existía el workflow de CI, pero no una suite de pruebas unitarias. Se ha
+añadido PHPUnit en la raíz del repositorio:
+
+- `composer.json`: dependencia de desarrollo y comando `composer test`, dentro de `web-aplikazioa/`.
+- `phpunit.xml.dist`: configuración de la suite, dentro de `web-aplikazioa/`.
+- `tests/SecurityTest.php`: pruebas de escape HTML y gestión de tokens CSRF, dentro de `web-aplikazioa/tests/`.
+- `.github/workflows/security.yml`: instalación de dependencias y ejecución de PHPUnit
+  en cada `push` y `pull_request`, además de sintaxis PHP y Semgrep.
+
+La ejecución local requiere Composer:
+
+```bash
+cd web-aplikazioa
+composer install
+composer test
+```
+
+En esta máquina no se pudo ejecutar PHPUnit porque Composer no está instalado. La
+sintaxis de la suite sí fue validada con `php -l`; la ejecución completa queda para
+Composer local o GitHub Actions.
+
+## Guía de instalación y ejecución
+
+La guía operativa completa está en `README.md`. El procedimiento resumido es:
+
+1. Instalar Docker/Compose para ejecutar la web.
+2. Copiar `.env.example` a `.env` y configurar secretos distintos para la aplicación
+   y para `root` de MySQL.
+3. Ejecutar `docker compose --env-file .env up -d --build`.
+4. Verificar que `db` está `healthy` y abrir `http://localhost:8090`.
+5. Para las pruebas locales, instalar PHP CLI, Composer y las extensiones `curl`,
+   `dom`, `mbstring` y `xml`.
+6. Desde `web-aplikazioa`, ejecutar `composer install` y `composer test`.
+
+El pipeline instala las mismas dependencias en GitHub Actions y ejecuta sintaxis PHP,
+pruebas PHPUnit, comprobaciones de regresión de seguridad y Semgrep en cada `push` y
+`pull_request`.
+
 ## Registro de la reorganización
 
 La reorganización arquitectónica se realizó después de la remediación de seguridad para

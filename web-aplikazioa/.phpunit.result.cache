@@ -1,0 +1,1 @@
+{"version":2,"defects":[],"times":{"SecurityTest::testHtmlOutputIsEscaped":0.002,"SecurityTest::testCsrfTokenIsRandomAndStoredInSession":0,"SecurityTest::testExistingCsrfTokenIsReusedForTheSession":0}}

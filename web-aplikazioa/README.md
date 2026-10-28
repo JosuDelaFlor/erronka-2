@@ -1,17 +1,116 @@
 # Web-aplikazioa segura
 
-## Inicio local
+## Requisitos
 
-1. Copia `.env.example` a `.env` y sustituye todos los valores por secretos largos y aleatorios.
-2. Ejecuta:
+Para ejecutar la aplicación con Docker:
+
+- Docker Engine o Docker Desktop.
+- Docker Compose v2 (`docker compose`).
+- Git.
+
+Para ejecutar las pruebas unitarias en local:
+
+- PHP CLI 8.2 o superior.
+- Composer 2.
+- Extensiones PHP `curl`, `dom`, `mbstring` y `xml`.
+
+En Debian/Parrot, instala las herramientas de desarrollo con:
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-plugin composer \
+    php-cli php-curl php-mbstring php-xml
+```
+
+Si utilizas Docker Desktop y tu shell tiene configurado un socket de Podman
+inexistente, limpia la variable antes de usar Docker:
+
+```bash
+unset DOCKER_HOST
+docker context use desktop-linux
+```
+
+## Instalación y ejecución con Docker
+
+Ejecuta los comandos desde la carpeta `web-aplikazioa`:
+
+```bash
+cd /home/josu/Desktop/Repos/erronka-2/web-aplikazioa
+```
+
+1. Crea el archivo local de variables de entorno:
 
    ```bash
-   docker compose up -d --build
+   cp .env.example .env
    ```
 
-3. Abre <http://localhost:8081>.
+2. Edita `.env` y establece contraseñas largas y diferentes:
 
-La aplicación PHP y MySQL se ejecutan en contenedores separados. MySQL no publica ningún puerto en el host; solo es accesible desde la red privada de Compose. El puerto HTTP `8090` se publica para el acceso local; en producción debe protegerse mediante HTTPS y un firewall. El usuario inicial es `admin@bdweb` con la contraseña temporal `password`; debe cambiarse inmediatamente en un entorno real.
+   ```env
+   MYSQL_DATABASE=BDweb
+   MYSQL_USER=webapp
+   MYSQL_PASSWORD=pon-una-contraseña-larga
+   MYSQL_ROOT_PASSWORD=pon-otra-contraseña-larga
+   ```
+
+   No subas `.env` a Git.
+
+3. Valida la configuración:
+
+   ```bash
+   docker compose --env-file .env config
+   ```
+
+4. Construye las imágenes e inicia los contenedores:
+
+   ```bash
+   docker compose --env-file .env up -d --build
+   ```
+
+   Con Docker Desktop y `DOCKER_HOST` configurado, usa:
+
+   ```bash
+   env -u DOCKER_HOST docker --context desktop-linux compose \
+       --env-file .env up -d --build
+   ```
+
+5. Comprueba el estado:
+
+   ```bash
+   docker compose --env-file .env ps
+   ```
+
+   El servicio `db` debe aparecer como `healthy` y `app` como `Up`.
+
+6. Abre la aplicación:
+
+   <http://localhost:8090>
+
+La aplicación PHP y MySQL se ejecutan en contenedores separados. MySQL no publica
+ningún puerto en el host; solo es accesible desde la red privada de Compose. El
+puerto HTTP `8090` se publica para el acceso local. En producción debe protegerse
+mediante HTTPS y un firewall.
+
+El usuario inicial de demostración es `admin@bdweb` con la contraseña temporal
+`password`. Cámbiala inmediatamente y no uses esta cuenta en producción.
+
+### Logs y parada
+
+```bash
+docker compose --env-file .env logs -f app
+docker compose --env-file .env logs -f db
+docker compose --env-file .env down
+```
+
+`docker compose down` detiene los servicios sin borrar los datos. Para reinicializar
+la base de datos de desarrollo, eliminando el volumen persistente:
+
+```bash
+docker compose --env-file .env down -v
+docker compose --env-file .env up -d --build
+```
+
+No uses `down -v` si necesitas conservar los datos.
 
 ## Estructura
 
@@ -79,15 +178,6 @@ que los movimientos dependan del directorio de trabajo desde el que se inicia PH
 La reorganización no cambia las URL públicas ni los nombres de las acciones (`login`,
 `register`, `account`, `description` y `updel`).
 
-Para reinicializar la base de datos de desarrollo:
-
-```bash
-docker compose down -v
-docker compose up -d --build
-```
-
-Este comando elimina los datos persistidos.
-
 ## Medidas de seguridad implementadas
 
 - Consultas preparadas en login, búsquedas, gestión de usuarios y productos.
@@ -103,3 +193,42 @@ Este comando elimina los datos persistidos.
 ## Producción
 
 Usa HTTPS delante de Apache, un gestor de secretos, elimina el usuario inicial, cambia las contraseñas y no expongas el puerto de MySQL. El directorio `uploads` debe almacenarse en un volumen con copias de seguridad y permisos mínimos.
+
+## Pruebas y CI/CD
+
+Las pruebas unitarias están en `tests/` y utilizan PHPUnit. Ejecuta todos los comandos
+desde `web-aplikazioa`, no desde `web-aplikazioa/tests`:
+
+```bash
+cd /home/josu/Desktop/Repos/erronka-2/web-aplikazioa
+composer install
+composer test
+```
+
+`composer install` instala PHPUnit en `vendor/` y genera `composer.lock`. No ejecutes
+Composer como `root`; utiliza tu usuario normal para evitar problemas de permisos.
+Si ya lo ejecutaste como `root`, corrige la propiedad:
+
+```bash
+sudo chown -R "$USER":"$USER" vendor composer.lock
+```
+
+Para ejecutar una prueba concreta:
+
+```bash
+vendor/bin/phpunit --filter SecurityTest
+```
+
+La suite actual comprueba:
+
+- Escape de HTML para prevenir XSS.
+- Generación de tokens CSRF.
+- Reutilización correcta del token CSRF en una sesión.
+
+El workflow `.github/workflows/security.yml` se ejecuta en cada `push` y `pull_request` y realiza:
+
+- Instalación reproducible de las dependencias de desarrollo.
+- Comprobación de sintaxis de todos los PHP.
+- Pruebas unitarias PHPUnit.
+- Comprobaciones de regresión de seguridad.
+- Análisis SAST mediante Semgrep.
