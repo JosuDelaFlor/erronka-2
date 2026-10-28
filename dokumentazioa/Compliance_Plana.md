@@ -1,7 +1,7 @@
 # Ugarteburu Torlojuak — Compliance Plana
 
 **2. Erronka: Egiturak indartzen**  
-**Dokumentu mota:** Araudia betetzeko eta arriskuak kudeatzeko plana (`README.md`)  
+**Dokumentu mota:** Araudia betetzeko eta arriskuak kudeatzeko plana (`CompliancePlana`)  
 **Enpresa:** Ugarteburu Torlojuak  
 **Bertsioa:** 1.0 — 2026-10-28  
 **Egoera:** Proposamen akademikoa; ez da benetako ziurtagiri edo auditoretza baten egiaztagiria.
@@ -732,11 +732,6 @@ Datu horiek gabe ere **Erronka 2rako oinarrizko compliance plan garatua** aurkez
 
 Jarraian daude dokumentuaren oinarri gisa erabili diren erreferentzia nagusiak. Normen testu osoak egile-eskubidepean egon daitezke; azalpen hau ez da arauen testu ofizialaren ordezkoa.
 
-### Enpresaren abiapuntuko informazioa
-
-- **UNIEIBAR-ERMUA:** *Ziber-26-27-ER2-Ikasleen dokumentua*, 2. Erronka, **2.–3. orrialdeak** (Ugarteburu Torlojuak: 40 langile, bi fabrika, ERP, % 20ko alerta eta hornidura-geldialdiak).
-- **UNIEIBAR-ERMUA:** dokumentu bereko **5.–6. orrialdeak** (sare-eskema orokorra, segmentazioa, VPN, HTTPS, MFA, web/Android auditoretza eta OT simulazioaren eskakizunak).
-- **UNIEIBAR-ERMUA:** dokumentu bereko **13. orrialdea** (compliance arloko ikasketa-emaitzak).
 
 ### ISO, IEC eta UNE
 
