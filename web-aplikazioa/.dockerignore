@@ -1,0 +1,9 @@
+.env
+.git
+.idea
+SECURITY-REVIEW.md
+README.md
+docker-compose.yml
+database
+uploads/*
+!uploads/.gitkeep
