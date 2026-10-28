@@ -1,20 +1,20 @@
-# Web-aplikazioa segura
+# Web-aplikazio segurua
 
-## Requisitos
+## Aurrebaldintzak
 
-Para ejecutar la aplicación con Docker:
+Aplikazioa Docker erabiliz exekutatzeko:
 
-- Docker Engine o Docker Desktop.
+- Docker Engine edo Docker Desktop.
 - Docker Compose v2 (`docker compose`).
 - Git.
 
-Para ejecutar las pruebas unitarias en local:
+Unitate-probak lokalean exekutatzeko:
 
-- PHP CLI 8.2 o superior.
+- PHP CLI 8.2 edo berriagoa.
 - Composer 2.
-- Extensiones PHP `curl`, `dom`, `mbstring` y `xml`.
+- PHPren `curl`, `dom`, `mbstring` eta `xml` luzapenak.
 
-En Debian/Parrot, instala las herramientas de desarrollo con:
+Debian/Parrot sistemetan, garapen-tresnak instalatzeko:
 
 ```bash
 sudo apt update
@@ -22,79 +22,79 @@ sudo apt install -y docker.io docker-compose-plugin composer \
     php-cli php-curl php-mbstring php-xml
 ```
 
-Si utilizas Docker Desktop y tu shell tiene configurado un socket de Podman
-inexistente, limpia la variable antes de usar Docker:
+Docker Desktop erabiltzen baduzu eta zure shell-ak existitzen ez den Podman socket bat
+konfiguratuta badu, ezabatu aldagaia Docker erabili aurretik:
 
 ```bash
 unset DOCKER_HOST
 docker context use desktop-linux
 ```
 
-## Instalación y ejecución con Docker
+## Docker bidezko instalazioa eta exekuzioa
 
-Ejecuta los comandos desde la carpeta `web-aplikazioa`:
+Exekutatu komandoak `web-aplikazioa` karpetatik:
 
 ```bash
 cd /home/josu/Desktop/Repos/erronka-2/web-aplikazioa
 ```
 
-1. Crea el archivo local de variables de entorno:
+1. Sortu ingurune-aldagaien fitxategi lokala:
 
    ```bash
    cp .env.example .env
    ```
 
-2. Edita `.env` y establece contraseñas largas y diferentes:
+2. Editatu `.env` eta ezarri pasahitz luze eta desberdinak:
 
    ```env
    MYSQL_DATABASE=BDweb
    MYSQL_USER=webapp
-   MYSQL_PASSWORD=pon-una-contraseña-larga
-   MYSQL_ROOT_PASSWORD=pon-otra-contraseña-larga
+   MYSQL_PASSWORD=jarri-pasahitz-luze-bat
+   MYSQL_ROOT_PASSWORD=jarri-beste-pasahitz-luze-bat
    ```
 
-   No subas `.env` a Git.
+   Ez igo `.env` Git-era.
 
-3. Valida la configuración:
+3. Balidatu konfigurazioa:
 
    ```bash
    docker compose --env-file .env config
    ```
 
-4. Construye las imágenes e inicia los contenedores:
+4. Eraiki irudiak eta abiarazi edukiontziak:
 
    ```bash
    docker compose --env-file .env up -d --build
    ```
 
-   Con Docker Desktop y `DOCKER_HOST` configurado, usa:
+   Docker Desktop eta `DOCKER_HOST` konfiguratuta badituzu:
 
    ```bash
    env -u DOCKER_HOST docker --context desktop-linux compose \
        --env-file .env up -d --build
    ```
 
-5. Comprueba el estado:
+5. Egiaztatu egoera:
 
    ```bash
    docker compose --env-file .env ps
    ```
 
-   El servicio `db` debe aparecer como `healthy` y `app` como `Up`.
+   `db` zerbitzuak `healthy` egoeran eta `app` zerbitzuak `Up` egoeran agertu behar dute.
 
-6. Abre la aplicación:
+6. Ireki aplikazioa:
 
    <http://localhost:8090>
 
-La aplicación PHP y MySQL se ejecutan en contenedores separados. MySQL no publica
-ningún puerto en el host; solo es accesible desde la red privada de Compose. El
-puerto HTTP `8090` se publica para el acceso local. En producción debe protegerse
-mediante HTTPS y un firewall.
+PHP eta MySQL edukiontzi bereizietan exekutatzen dira. MySQL-ek ez du atakarik
+argitaratzen ostalariaren sisteman; Compose-ren sare pribatuaren bidez bakarrik
+eskura daiteke. HTTPko `8090` ataka sarbide lokalerako argitaratzen da. Produkzioan
+HTTPS eta firewall baten bidez babestu behar da.
 
-El usuario inicial de demostración es `admin@bdweb` con la contraseña temporal
-`password`. Cámbiala inmediatamente y no uses esta cuenta en producción.
+Hasierako demo-erabiltzailea `admin@bdweb` da, eta aldi baterako pasahitza `password`
+da. Aldatu berehala eta ez erabili kontu hori produkzioan.
 
-### Logs y parada
+### Erregistroak eta geldiaraztea
 
 ```bash
 docker compose --env-file .env logs -f app
@@ -102,33 +102,33 @@ docker compose --env-file .env logs -f db
 docker compose --env-file .env down
 ```
 
-`docker compose down` detiene los servicios sin borrar los datos. Para reinicializar
-la base de datos de desarrollo, eliminando el volumen persistente:
+`docker compose down` komandoak zerbitzuak geldiarazten ditu datuak ezabatu gabe.
+Garapeneko datu-basea berriro hasieratzeko eta bolumen iraunkorra ezabatzeko:
 
 ```bash
 docker compose --env-file .env down -v
 docker compose --env-file .env up -d --build
 ```
 
-No uses `down -v` si necesitas conservar los datos.
+Ez erabili `down -v` datuak gorde behar badituzu.
 
-## Estructura
+## Egitura
 
-- `index.php`: punto de entrada HTTP.
-- `config/`: configuración basada en variables de entorno.
-- `src/Core/`: seguridad transversal y utilidades comunes.
-- `src/Infrastructure/`: conexión con servicios externos.
-- `src/Modules/Auth/`: registro y login.
-- `src/Modules/Account/`: gestión de cuentas.
-- `src/Modules/Catalog/`: productos, búsqueda y administración del catálogo.
-- `database/`: SQL de inicialización de MySQL.
-- `docker/`: configuración de Apache.
-- `images/`: recursos estáticos del catálogo.
-- `uploads/`: almacenamiento de ficheros subidos.
+- `index.php`: HTTP sarrera-puntua.
+- `config/`: ingurune-aldagaietan oinarritutako konfigurazioa.
+- `src/Core/`: zeharkako segurtasuna eta utilitate komunak.
+- `src/Infrastructure/`: kanpoko zerbitzuekiko konexioak.
+- `src/Modules/Auth/`: erregistroa eta saio-hasiera.
+- `src/Modules/Account/`: kontuen kudeaketa.
+- `src/Modules/Catalog/`: produktuak, bilaketa eta katalogoaren administrazioa.
+- `database/`: MySQL hasieratzeko SQLa.
+- `docker/`: Apache-ren konfigurazioa.
+- `images/`: katalogoko baliabide estatikoak.
+- `uploads/`: igotako fitxategien biltegiratzea.
 
-## Reorganización arquitectónica
+## Arkitektura-berrantolaketa
 
-La estructura anterior concentraba la configuración y todos los módulos en la raíz:
+Lehen, konfigurazioa eta modulu guztiak erroko karpetan zeuden:
 
 ```text
 conf.php
@@ -137,67 +137,69 @@ scripts/
 apache.conf
 ```
 
-Se sustituyó por una organización por responsabilidades:
+Orain erantzukizunen arabera antolatuta dago:
 
 ```text
-config/config.php                 # Configuración de entorno
-src/Core/security.php             # Seguridad transversal
-src/Infrastructure/database.php  # Acceso a MySQL
-src/Modules/Auth/                 # Login y registro
-src/Modules/Account/              # Cuenta y usuarios
-src/Modules/Catalog/              # Productos y catálogo
-database/init.sql                 # Inicialización de la base de datos
-docker/apache.conf                # Configuración de Apache
+config/config.php                 # Ingurune-konfigurazioa
+src/Core/security.php             # Zeharkako segurtasuna
+src/Infrastructure/database.php  # MySQL-rako sarbidea
+src/Modules/Auth/                 # Saio-hasiera eta erregistroa
+src/Modules/Account/              # Kontuak eta erabiltzaileak
+src/Modules/Catalog/              # Produktuak eta katalogoa
+database/init.sql                 # Datu-basearen hasieraketa
+docker/apache.conf                # Apache-ren konfigurazioa
 ```
 
-### Mapa de movimientos
+### Mugimenduen mapa
 
-| Ubicación anterior | Ubicación actual | Motivo |
+| Aurreko kokapena | Uneko kokapena | Arrazoia |
 |---|---|---|
-| `conf.php` | `config/config.php` | Separar configuración de la lógica de aplicación. |
-| `includes/security.php` | `src/Core/security.php` | Centralizar políticas transversales de seguridad. |
-| `includes/mysql.php` | `src/Infrastructure/database.php` | Aislar la dependencia de MySQL. |
-| `includes/login.php`, `register.php` | `src/Modules/Auth/` | Agrupar las funciones de autenticación. |
-| `includes/account.php` | `src/Modules/Account/` | Separar la gestión de cuentas. |
-| `includes/main.php`, `description.php`, `updel.php` | `src/Modules/Catalog/` | Agrupar las operaciones del catálogo. |
-| `scripts/db.sql` | `database/init.sql` | Identificar claramente los recursos de base de datos. |
-| `apache.conf` | `docker/apache.conf` | Separar la infraestructura de despliegue. |
+| `conf.php` | `config/config.php` | Konfigurazioa aplikazioaren logikatik bereiztea. |
+| `includes/security.php` | `src/Core/security.php` | Zeharkako segurtasun-politikak zentralizatzea. |
+| `includes/mysql.php` | `src/Infrastructure/database.php` | MySQLrekiko mendekotasuna isolatzea. |
+| `includes/login.php`, `register.php` | `src/Modules/Auth/` | Autentifikazio-funtzioak taldekatzea. |
+| `includes/account.php` | `src/Modules/Account/` | Kontuen kudeaketa bereiztea. |
+| `includes/main.php`, `description.php`, `updel.php` | `src/Modules/Catalog/` | Katalogoko eragiketak taldekatzea. |
+| `scripts/db.sql` | `database/init.sql` | Datu-baseko baliabideak argi identifikatzea. |
+| `apache.conf` | `docker/apache.conf` | Inplementazioaren azpiegitura bereiztea. |
 
-`index.php` se mantiene como front controller compatible con el despliegue actual.
-Sus inclusiones se han convertido en rutas absolutas basadas en `__DIR__`, evitando
-que los movimientos dependan del directorio de trabajo desde el que se inicia PHP.
+`index.php` front controller gisa mantendu da, uneko inplementazioarekiko bateragarritasuna
+bermatzeko. Inklusioak `__DIR__` oinarri duten bide absolutuetara aldatu dira; horrela,
+PHP abiarazten den lan-direktorioak ez du eraginik.
 
-### Principios aplicados
+### Aplikatutako printzipioak
 
-- **Responsabilidad única:** cada carpeta representa una responsabilidad técnica o funcional.
-- **Modularidad:** autenticación, cuentas y catálogo pueden evolucionar de forma independiente.
-- **Bajo acoplamiento:** la conexión a MySQL está aislada en `Infrastructure`.
-- **Extensibilidad:** se pueden añadir módulos nuevos sin convertir `index.php` en un archivo monolítico.
-- **Mantenibilidad:** la configuración, el SQL y Docker tienen ubicaciones explícitas.
+- **Erantzukizun bakarra:** karpeta bakoitzak erantzukizun tekniko edo funtzional bat du.
+- **Modularitatea:** autentifikazioa, kontuak eta katalogoa modu independentean garatu daitezke.
+- **Akoplamendu txikia:** MySQLrekiko konexioa `Infrastructure` geruzan isolatuta dago.
+- **Hedagarritasuna:** modulu berriak gehi daitezke `index.php` fitxategi monolitiko bihurtu gabe.
+- **Mantengarritasuna:** konfigurazioak, SQLak eta Dockerrek kokapen esplizituak dituzte.
 
-La reorganización no cambia las URL públicas ni los nombres de las acciones (`login`,
-`register`, `account`, `description` y `updel`).
+Berrantolaketak ez ditu URL publikoak edo ekintzen izenak aldatu (`login`, `register`,
+`account`, `description` eta `updel`).
 
-## Medidas de seguridad implementadas
+## Inplementatutako segurtasun-neurriak
 
-- Consultas preparadas en login, búsquedas, gestión de usuarios y productos.
-- `password_hash()`/`password_verify()` en lugar de MD5.
-- Regeneración del identificador de sesión al autenticarse.
-- Cookies `HttpOnly`, `SameSite=Lax` y `Secure` cuando se usa HTTPS.
-- Tokens CSRF en todas las operaciones que modifican datos.
-- Escape contextual con `htmlspecialchars`.
-- Uploads con MIME real, tamaño limitado, nombre aleatorio y bloqueo de ejecución PHP.
-- Usuario MySQL dedicado y red interna sin puerto 3306 publicado.
-- Imagen PHP reproducible con extensión `mysqli` instalada durante el build.
+- Kontsulta prestatuak login, bilaketa, erabiltzaileen kudeaketa eta produktuetarako.
+- `password_hash()`/`password_verify()` MD5aren ordez.
+- Saio-identifikatzailearen birsorkuntza autentifikazioaren ondoren.
+- `HttpOnly`, `SameSite=Lax` eta `Secure` cookieak HTTPS erabiltzen denean.
+- CSRF tokenak datuak aldatzen dituzten eragiketa guztietan.
+- Testuinguruaren araberako escape-a `htmlspecialchars` erabiliz.
+- Upload-ak benetako MIMEarekin, tamaina-mugarekin, ausazko izenarekin eta PHPren exekuzioaren blokeoarekin.
+- MySQL erabiltzaile dedikatua eta 3306 atakarik argitaratzen ez duen sare pribatua.
+- PHP irudi erreproduzigarria, `mysqli` luzapena build-ean instalatuta.
 
-## Producción
+## Produkzioa
 
-Usa HTTPS delante de Apache, un gestor de secretos, elimina el usuario inicial, cambia las contraseñas y no expongas el puerto de MySQL. El directorio `uploads` debe almacenarse en un volumen con copias de seguridad y permisos mínimos.
+Erabili HTTPS Apache-ren aurrean, sekretuen kudeatzaile bat, ezabatu hasierako
+erabiltzailea, aldatu pasahitzak eta ez argitaratu MySQLren ataka. `uploads`
+direktorioa babeskopiak eta gutxieneko baimenak dituen bolumen batean gorde behar da.
 
-## Pruebas y CI/CD
+## Probak eta CI/CD
 
-Las pruebas unitarias están en `tests/` y utilizan PHPUnit. Ejecuta todos los comandos
-desde `web-aplikazioa`, no desde `web-aplikazioa/tests`:
+Unitate-probak `tests/` karpetan daude eta PHPUnit erabiltzen dute. Exekutatu komando
+guztiak `web-aplikazioa` karpetatik, ez `web-aplikazioa/tests` karpetatik:
 
 ```bash
 cd /home/josu/Desktop/Repos/erronka-2/web-aplikazioa
@@ -205,30 +207,31 @@ composer install
 composer test
 ```
 
-`composer install` instala PHPUnit en `vendor/` y genera `composer.lock`. No ejecutes
-Composer como `root`; utiliza tu usuario normal para evitar problemas de permisos.
-Si ya lo ejecutaste como `root`, corrige la propiedad:
+`composer install` komandoak PHPUnit `vendor/` karpetan instalatzen du eta `composer.lock`
+sortzen du. Ez exekutatu Composer `root` erabiltzailearekin; erabili ohiko erabiltzailea
+baimen-arazoak saihesteko. Root gisa exekutatu baduzu, zuzendu jabetza:
 
 ```bash
 sudo chown -R "$USER":"$USER" vendor composer.lock
 ```
 
-Para ejecutar una prueba concreta:
+Proba zehatz bat exekutatzeko:
 
 ```bash
 vendor/bin/phpunit --filter SecurityTest
 ```
 
-La suite actual comprueba:
+Uneko suiteak honako hauek egiaztatzen ditu:
 
-- Escape de HTML para prevenir XSS.
-- Generación de tokens CSRF.
-- Reutilización correcta del token CSRF en una sesión.
+- HTMLaren escape-a, XSS prebenitzeko.
+- CSRF tokenen sorrera.
+- CSRF tokenaren berrerabilpen zuzena saio berean.
 
-El workflow `.github/workflows/security.yml` se ejecuta en cada `push` y `pull_request` y realiza:
+`.github/workflows/security.yml` workflow-a `push` eta `pull_request` bakoitzean
+exekutatzen da, eta honako hauek egiten ditu:
 
-- Instalación reproducible de las dependencias de desarrollo.
-- Comprobación de sintaxis de todos los PHP.
-- Pruebas unitarias PHPUnit.
-- Comprobaciones de regresión de seguridad.
-- Análisis SAST mediante Semgrep.
+- Garapen-mendekotasunen instalazio erreproduzigarria.
+- PHP fitxategi guztien sintaxiaren egiaztapena.
+- PHPUnit unitate-probak.
+- Segurtasun-erregresioaren egiaztapenak.
+- SAST analisia Semgrep bidez.
