@@ -12,10 +12,12 @@ require_once __DIR__ . "/src/Core/security.php";
 
 ?>
 
-<html>
+<!doctype html>
+<html lang="eu">
 <head>
-<title><?php echo e($enpresa); ?></title>
-</html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ugarteburu Torlojuak</title>
 <link rel=stylesheet type=text/css href=style.css>
 </head>
 <body>
@@ -24,11 +26,11 @@ require_once __DIR__ . "/src/Core/security.php";
 <table cellspacing=5 cellpadding=5>
 <tr>
 <td>
-<img src=logo.png height=110 width=115 border=0>
+<img src=logo.png height=110 width=115 border=0 alt="Ugarteburu Torlojuak">
 </td>
 <td>
 <hr>
-<h1><?php echo $enpresa; ?></h1><br>
+<h1>Ugarteburu Torlojuak</h1><br>
 <hr>
 </td>
 </tr>
@@ -113,7 +115,7 @@ else{
 <br>
 <hr width=1000 size=5>
 <div align=center>
-    <b>Proiektua <?php echo e($version); ?></b> <br>
+    <b>Ugarteburu Torlojuak &middot; <?php echo e($version); ?></b> <br>
 <!--</fieldset>-->
 </div>
 </body>

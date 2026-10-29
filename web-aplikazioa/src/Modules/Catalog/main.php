@@ -15,12 +15,13 @@ $produktuak = mysqli_fetch_all($result, MYSQLI_ASSOC);
 <?php else: ?>
 <table width="1000" cellpadding="10" cellspacing="10" align="center">
 <?php foreach ($produktuak as $data): ?>
+    <?php $catalogImage = [1 => 'torlojuak.png', 2 => 'automozioa.png', 4 => 'industria.png'][(int) $data['id']] ?? $data['pic']; ?>
     <tr>
         <td align="center" valign="top" width="40%">
             <fieldset>
-                <?php if (!empty($data['pic'])): ?>
-                    <a href="images/<?php echo e(rawurlencode($data['pic'])); ?>">
-                        <img src="images/<?php echo e(rawurlencode($data['pic'])); ?>" border="1" alt="">
+                <?php if (!empty($catalogImage)): ?>
+                    <a href="images/<?php echo e(rawurlencode($catalogImage)); ?>">
+                        <img src="images/<?php echo e(rawurlencode($catalogImage)); ?>" border="1" alt="<?php echo e($data['izena']); ?>">
                     </a>
                 <?php endif; ?>
             </fieldset>
