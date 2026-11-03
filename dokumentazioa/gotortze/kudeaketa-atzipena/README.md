@@ -9,7 +9,7 @@ Gailuen administrazioa izen bidez (FQDN) egiten da, ez IP bidez, eta kanal guzti
 | EN-pfSense | WebGUI | `pfsense.talde1.lan` | `192.168.112.1` | ✅ |
 | U1-PaloAlto-IT | WebGUI | `pa-it.talde1.lan` | `192.168.20.1` | ✅ |
 | EN-CertServ | SSH | `certserv.talde1.lan` | `192.168.111.20` | ✅ |
-| EN-MikroTik | WebGUI | | | Egiteko |
+| EN-MikroTik | WebGUI, SSH, Winbox | `mikrotik.talde1.lan` | `192.168.112.2` | ✅ |
 | U1-PaloAlto-OT | WebGUI | | | Egiteko (2. zatia) |
 | U1-DMZIT-XAMP | SSH | | | Egiteko (2. zatia) |
 | U1-DMZOT-Ubuntu | SSH | | | Egiteko (2. zatia) |
@@ -132,8 +132,63 @@ Pasahitzarekin ezin da sartu:
 
 ![Pasahitza ukatuta](img/24-ssh-proba-pasahitza.png)
 
-## 7. Egiteko
+## 7. MikroTik
 
-- MikroTik-a, PA-OT eta DMZ-ko zerbitzariak (2. zatia) prozedura berarekin.
+### 7.1 Trunk-aren egiaztapena
+
+MikroTik-ak (CRS112, RouterOS 6.49) aurreko erronkako konfigurazioa zuen, jada 110-113 VLANetara egokituta:
+
+| Ataka | Funtzioa |
+|---|---|
+| `ether1` | Trunk-a klaseko switchera (110-113 etiketatuta, etiketadun trafikoa bakarrik) |
+| `ether3` / `ether4` / `ether5` | Sarbidea: 110 BEZEROAK / 111 ZERBITZARIAK / 112 SISTEMAK |
+| `vlan112-kudeaketa` | Kudeaketa-IP-a `192.168.112.2`, gateway-a pfSense (`.1`) |
+
+Erabiltzen ez diren atakak desgaituta daude. Bidea (pfSense → rack-eko switcha → zuntza → klaseko switcha → MikroTik) pfSense-tik egiaztatu da:
+
+![pfSense → MikroTik](img/25-mk-pfsense-ping-mikrotik.png)
+
+Administrazio-ekipoa `ether5`-era konektatuta, IP-a DHCP relay bidez jasotzen du AD-tik. SISTEMAK-eko esparruak helbide bakarra du, administratzailearen ekipoaren MAC-ari lotutako erreserba (`.200`): beste ekipo ezezagun batek ez du IP-rik jasotzen. Esparruari 003 aukera (gateway-a) falta zitzaion eta gehitu egin zen.
+
+![DHCP 003](img/27-mk-dhcp-003.png)
+
+![Erreserba](img/28-mk-dhcp-erreserba.png)
+
+![ipconfig](img/26-mk-pc-ether5-ipconfig.png)
+
+![Probak](img/29-mk-pc-ether5-probak.png)
+
+### 7.2 FQDN eta HTTPS
+
+DNS erregistroa (`mikrotik.talde1.lan` → `192.168.112.2`) eta PKI-ko ziurtagiria, pfSense-ren prozedura berarekin. Ziurtagiria eta gako zifratua Winbox-eko *Files*-era igo eta inportatu dira; `K` (gako pribatua) eta `T` (konfiantzazkoa) markak ditu. Inportatu ondoren fitxategiak ezabatu dira.
+
+![DNS](img/30-mk-dns-mikrotik.png)
+
+![Ziurtagiria sortu](img/31-mk-cert-sortu.png)
+
+![Inportazioa](img/32-mk-cert-import.png)
+
+![Xehetasunak](img/33-mk-cert-detail.png)
+
+Zerbitzuak:
+
+```
+/ip service set www-ssl certificate=mikrotik.crt_0 disabled=no address=192.168.112.0/24,192.168.114.0/24
+/ip service set winbox address=192.168.112.0/24,192.168.114.0/24
+/ip service set ssh address=192.168.112.0/24,192.168.114.0/24
+/ip ssh set strong-crypto=yes
+```
+
+ssh, www-ssl eta winbox bakarrik daude aktibo, SISTEMAK-etik eta OpenVPN-etik bakarrik; telnet, ftp, www (HTTP) eta api desgaituta. Aldaketak *Safe Mode*-n egin dira, konexioa galduz gero automatikoki desegiteko.
+
+![Zerbitzuak](img/34-mk-ip-service.png)
+
+RouterOS 6-k bere ziurtagiria bakarrik bidaltzen du, katerik gabe; beraz bezeroak Intermediate CA izan behar du bere biltegian. Domeinuko ekipoek GPO bidez dute; domeinutik kanpoko ekipoan eskuz inportatu da (`certutil -user -addstore CA intermediate.crt`).
+
+![MikroTik kandatua](img/35-mk-mikrotik-kandatua.png)
+
+## 8. Egiteko
+
+- PA-OT eta DMZ-ko zerbitzariak (2. zatia) prozedura berarekin.
 - Taldekide bakoitzak bere SSH gakoa izatea.
 - Firefox-en *Importar raíces empresariales* GPO bidez.
