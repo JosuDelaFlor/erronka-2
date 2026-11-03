@@ -61,6 +61,7 @@ Hostname-ak gailua identifikatzen du kudeaketan eta log-etan. DNS zerbitzariak s
 SNAT bakarra dago, Internetera irten behar duen IT sarearentzat soilik. Trafikoa WAN interfazearen IP-arekin itzultzen da (Dynamic IP and Port).
 
 ![08-nat](img/08-nat-1.png)
+![08-nat](img/08-nat-2.png)
 
 ## 9. Segurtasun-politikak
 
