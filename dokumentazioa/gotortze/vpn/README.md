@@ -182,3 +182,62 @@ PA-IT-n IKE eta tunela berdez daude.
 Proba: U1-admin-etik EN-CertServ-era (`192.168.111.20`) ping-a. TTL=62-k erakusten du paketeak bi suebakietatik igaro direla.
 
 ![Ping proba](img/31-proba-ping.png)
+
+Beste norabidean, EN-ko SISTEMAK saretik (`sistemak-win`) U1-admin-era (`192.168.20.10`) ping-a. Windows-ek ICMP sarrera blokeatzen duenez, U1-admin-en arau bat gehitu da:
+
+```
+netsh advfirewall firewall add rule name="ICMP-in" protocol=icmpv4:8,any dir=in action=allow
+```
+
+TTL=126: Windows 128-rekin irteten da eta bi suebakiek jauzi bana kentzen dute.
+
+![Ping proba EN → U1](img/32-proba-ping-en-u1.png)
+
+Trafiko horrek SISTEMAK-en Phase 2-a altxatu du; orain bi Phase 2 daude *Installed* egoeran (111 eta 112), eta paketeen kontagailuak igotzen dira.
+
+![pfSense egoera bi Phase 2-ekin](img/33-pfsense-egoera-bi-p2.png)
+
+## 8. Active Directory-ren erreplikazioa tuneletik
+
+U1-eko Windows Server-a (U1-WS, `192.168.20.20`) `talde1.lan` domeinuaren bigarren domeinu-kontrolatzailea da (ikus [Active Directory dokumentazioa](../../oinarriak/active-directory/README.md)). Bi DC-ek tuneletik erreplikatzen dute, eta horretarako bi DC-en artean bakarrik irekitzen dira AD-ren portuak; gainerako ekipoek ez dute portu horietarako sarbiderik.
+
+Portuak `AD_PORTUAK` aliasekoak dira: DNS (53), Kerberos (88, 464), RPC (135 eta 49152-65535 tarte dinamikoa), LDAP (389, 636), SMB (445), katalogo globala (3268-3269) eta NTP (123).
+
+### 8.1 pfSense
+
+`U1_DC` aliasa sortu da U1-eko DC-arentzat (`EN_DC` lehendik zegoen).
+
+![U1_DC aliasa](img/34-pfsense-alias-u1dc.png)
+
+**IPsec fitxa** (U1-etik datorrena): `U1_DC` → `EN_DC`, TCP/UDP, `AD_PORTUAK`.
+
+![IPsec arauak](img/35-pfsense-ipsec-ad.png)
+
+**VLAN111_ZERBITZARIAK fitxa** (EN-ko DC-tik U1-era): `EN_DC` → `U1_DC`, TCP/UDP, `AD_PORTUAK`. Arau hau beharrezkoa da ZERBITZARIAK sareak lehenetsiz Internetera bakarrik irten daitekeelako.
+
+![VLAN111 arauak](img/36-pfsense-vlan111-ad.png)
+
+### 8.2 PA-IT
+
+pfSense-ren aliasaren baliokidea zerbitzu-objektuekin sortu da: `AD-TCP` eta `AD-UDP`, helmuga-portuekin bakarrik (jatorrizko portua ausazkoa da), `AD-PORTUAK` taldean bilduta.
+
+![AD-TCP](img/37-pa-ad-tcp.png)
+
+![AD-UDP](img/38-pa-ad-udp.png)
+
+![AD-PORTUAK taldea](img/39-pa-ad-portuak.png)
+
+Bi arau, norabide bakoitzeko bat, *interzone-default*-en gainetik:
+
+- `U1-DC-EN-DC`: U1-IT `192.168.20.20` → VPN-EN `192.168.111.10`, `AD-PORTUAK` zerbitzua.
+- `EN-DC-U1-DC`: VPN-EN `192.168.111.10` → U1-IT `192.168.20.20`, `AD-PORTUAK` zerbitzua.
+
+![Arauaren zerbitzua](img/40-pa-ad-araua-zerbitzua.png)
+
+![AD arauak](img/41-pa-ad-arauak.png)
+
+### 8.3 Egiaztapena
+
+U1-WS-tik: domeinuaren izena EN-ko DC-aren bidez ebazten da, eta LDAP (389) eta SMB (445) portuak tuneletik eskuragarri daude.
+
+![AD portuen proba](img/42-proba-ad-portuak.png)
