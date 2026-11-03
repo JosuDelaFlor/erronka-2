@@ -93,6 +93,31 @@ DC-a `U1` gunean dago, eta bost partizioak (domeinua, Configuration, Schema, Dom
 
 `dcdiag /q` komandoak sustapenaren uneko gertaerak bakarrik erakusten ditu (Isard-ek VM-a itzaltzea eta GPO-ak DC izan aurretik huts egitea); ez dago geroagoko errorerik.
 
+### 5.1 U1 → EN erreplikazioa
+
+Sustapenean EN → U1 konexioa sortzen da bakarrik. Kontrako konexioa (U1 → EN) WS-TALDE1-eko KCC-ak sortzen du, 15 minuturo exekutatzen den prozesu automatikoak. Itxaron ordez, eskuz exekutatu zen eta erreplikazioa behartu zen:
+
+```powershell
+repadmin /kcc
+repadmin /syncall /Aed
+repadmin /replicate WS-TALDE1 U1-WS DC=DomainDnsZones,DC=talde1,DC=lan
+repadmin /replicate WS-TALDE1 U1-WS DC=ForestDnsZones,DC=talde1,DC=lan
+```
+
+Orain WS-TALDE1-ek `U1\U1-WS` du sarrerako bizilagun gisa, partizio guztietan.
+
+![EN-ko showrepl](img/10-en-showrepl.png)
+
+Proba: U1-WS-n sortutako DNS erregistro bat (`pfsense.talde1.lan`) WS-TALDE1-en ebazten da, beraz erreplikazioak bi norabideetan funtzionatzen du.
+
+![U1 → EN erreplikazioa](img/11-u1-en-erreplikazioa.png)
+
+### 5.2 Guneen arteko erreplikazio-tartea
+
+Gune ezberdinen artean AD-k ez du berehala erreplikatzen, `DEFAULTIPSITELINK` loturaren tartearen arabera baizik (lehenetsiz 180 minutu). Laborategian 15 minutura jaitsi da (gutxienekoa). Enpresa erreal batean tartea egoitzen arteko loturaren banda-zabaleraren arabera aukeratzen da.
+
+![Guneen arteko lotura](img/12-gune-lotura.png)
+
 ## 6. DNS konfigurazioa
 
 DC bihurtu ondoren U1-WS DNS zerbitzaria ere bada. Microsoft-en gomendioari jarraituz, DNS nagusia beste DC-a da eta bigarrena bera (`127.0.0.1`). Horrela DC-a ez da bere buruarekin bakarrik geratzen berrabiaraztean, eta VPN-a erortzen bada bere DNS-a erabiltzen du.
