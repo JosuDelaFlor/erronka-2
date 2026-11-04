@@ -127,42 +127,30 @@ EN-CertServ-eko SSH-an VPN sarea gehitu da `AllowUsers`-en:
 
 ## 6. Bezero-fitxategiak
 
-pfSense 2.6.0 bertsioan `openvpn-client-export` paketea ezin da instalatu (pakete-biltegiak pfSense eguneratzea eskatzen du). pfSense eguneratu beharrean, `.ovpn` fitxategiak eskuz sortu dira EN-CertServ-en, pakete horrek egiten duena bera eginez:
+`openvpn-client-export` paketea instalatzean errore bat agertu zen: pfSense-k 2.7.0 bertsioaren pakete-biltegia erabiltzen zuen, eta han paketeak PHP berriago baterako konpilatuta daude. pfSense eguneratu gabe konpontzeko, eguneraketa-adarra **PREVIOUS version (v2.6.0)**-ra aldatu da (*System › Update › Update Settings*), instalatutako bertsioaren biltegia erabil dezan. Ez da sistema eguneratu. Aldaketa aurretik konfigurazioaren babeskopia (XML) atera zen.
 
-```bash
-for u in nerea josu iker; do
-{
-cat <<'EOF'
-client
-dev tun
-proto udp4
-remote 192.168.74.1 1194
-resolv-retry infinite
-nobind
-persist-key
-persist-tun
-remote-cert-tls server
-verify-x509-name "openvpn.talde1.lan" name
-data-ciphers AES-256-GCM
-auth SHA256
-auth-user-pass
+![Eguneraketa-adarra](img/38-pkg-adarra.png)
+
+![Paketea](img/39-pkg-bilatu.png)
+
+![Instalatuta](img/40-pkg-instalatuta.png)
+
+*VPN › OpenVPN › Client Export*: WAN interfazearen IP-a, `verify-x509-name` automatikoa eta DNS zatiturako bi aukera gehigarri:
+
+```
 dns server 1 address 192.168.111.10
 dns server 1 resolve-domains talde1.lan
-verb 3
-EOF
-echo "<ca>"; cat certs/ca-chain.crt; echo "</ca>"
-echo "<cert>"; openssl x509 -in certs/ovpn-$u.crt; echo "</cert>"
-echo "<key>"; cat private/ovpn-$u.key; echo "</key>"
-echo "<tls-crypt>"; cat /home/pki/ta.key; echo "</tls-crypt>"
-} > /home/pki/ovpn/$u.ovpn
-done
 ```
 
-- `remote-cert-tls server` eta `verify-x509-name`: bezeroak zerbitzari-ziurtagiri bat eta `openvpn.talde1.lan` izena eskatzen ditu (MITM-aren aurka).
-- `dns server … resolve-domains talde1.lan`: DNS zatitua. Windows-en NRPT arau bat sortzen da, `*.talde1.lan` bakarrik AD-ra bidaltzeko; gainerako izenak ohiko DNS-ari.
-- Fitxategi bakoitzak jabearen gako pribatua dauka, beraz modu pribatuan banatzen da eta ez da GitHub-era igotzen.
+`dns` aukerak Windows-en NRPT arau bat sortzen du, `*.talde1.lan` bakarrik AD-ra bidaltzeko. OpenVPN 2.6 edo berriagoa behar du bezeroan; horregatik *Most Clients* (inline `.ovpn`) fitxategia erabiltzen da OpenVPN Community 2.6+ bezeroarekin, eta ez paketeak dakarren 2.5.8 instalatzailea.
 
-`tls-crypt` gakoa pfSense-tik SISTEMAK-WIN-era kopiatu eta `scp` bidez igo zen EN-CertServ-era; fitxategiak sortu ondoren ezabatu zen.
+![Export ezarpenak](img/41-export-dns.png)
+
+Bezero bakoitza bere ziurtagiriarekin agertzen da (*Certificate with External Auth*: erabiltzailea AD-n dago). Fitxategi bakoitzak jabearen gako pribatua dauka, beraz modu pribatuan banatzen da eta ez da GitHub-era igotzen.
+
+![Bezeroak](img/42-export-bezeroak.png)
+
+Paketea instalatu aurretik, fitxategiak eskuz sortu ziren EN-CertServ-en, paketeak egiten duena bera eginez (CA katea, bezero-ziurtagiria eta gakoa, eta `tls-crypt` gakoa `.ovpn` bakarrean). Proba (7. atala) fitxategi horrekin egin zen; paketea instalatu ondoren eskuzko fitxategiak ezabatu dira.
 
 ## 7. Probak
 
@@ -196,9 +184,44 @@ Zerbitzariaren egoera (konexiorik gabe):
 
 ![Egoera](img/28-ovpn-egoera-hutsik.png)
 
+### 7.1 Linux bezeroa (josu)
+
+`josu` erabiltzailea Linux batetik (Parrot OS, OpenVPN 2.6.14) konektatu da, pfSense-tik esportatutako fitxategiarekin:
+
+```bash
+sudo apt install openvpn
+sudo openvpn --config pfsense-UDP4-1194-josu-config.ovpn
+```
+
+Linux-en `dns` aukerak ez du DNS-a automatikoki konfiguratzen, beraz DNS zatitua `systemd-resolved`-ekin ezartzen da konektatu ondoren:
+
+```bash
+sudo resolvectl dns tun0 192.168.111.10
+sudo resolvectl domain tun0 '~talde1.lan'
+```
+
+Emaitza: `192.168.114.3` IP-a, barne-sareetara (`192.168.111.20`) eta pfSense-ren WebGUI-ra sarbidea.
+
+**Arazo bat eta konponbidea:** lehen saiakeran bezeroak IP-a jaso eta `192.168.114.1` erantzuten zuen, baina ez zen barne-sareetara iristen (pfSense-ko pakete-harrapaketan ez zen ezer agertzen). Log-ean ikusi zen arrazoia:
+
+```
+TUN/TAP device tun1 opened
+sitnl_send: rtnl: generic error (-17): File exists   (x5)
+```
+
+Aurretik NetworkManager-ekin egindako konexio bat (`tun0`) aktibo zegoen oraindik. Konexio berriak `tun1` sortu zuen, eta bost ibilbideak ezin izan ziren gehitu, jada `tun0`-ra zuzenduta baitzeuden. pfSense-k konexio zaharra moztu zuen (erabiltzaile bakoitzeko saio bakarra onartzen da), beraz trafikoa tunel hil batera zihoan. Konponbidea: OpenVPN eta NetworkManager-eko VPN guztiak itxi (`sudo killall openvpn`, `nmcli connection down …`), `tun` interfazerik ez dagoela egiaztatu eta berriro konektatu.
+
+**Ziurtagiriak:** domeinutik kanpoko ekipoa denez, Root eta Intermediate CA-ak `.ovpn` fitxategiko `<ca>` bloketik atera eta sisteman instalatu dira; Firefox-en eskuz inportatu behar dira, bere biltegia erabiltzen baitu.
+
+```bash
+sed -n '/<ca>/,/<\/ca>/p' pfsense-UDP4-1194-josu-config.ovpn | grep -v 'ca>' > ugarteburu-ca.crt
+sudo cp ugarteburu-ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+```
+
 ## 8. Egiteko / hobekuntzak
 
-- josu eta iker erabiltzaileekin proba egin eta hiru konexioak batera erakutsi.
+- iker erabiltzailearekin proba egin eta hiru konexioak batera erakutsi (*Status › OpenVPN*).
 - LDAP-a LDAPS-era pasa (DC-arentzat PKI-ko ziurtagiria).
 - CRL-a argitaratu eta OpenVPN-en gaitu, ziurtagiriak errebokatu ahal izateko.
 - Nerearen gako pribatua eta tls-crypt gakoa txat batean partekatu ziren proban zehar; ingurune erreal batean ziurtagiria errebokatu eta tls-crypt gakoa berritu beharko litzateke.
