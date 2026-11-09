@@ -212,7 +212,38 @@ openssl x509 -in certs/vpn-u1.crt -noout -subject -ext subjectAltName
 
 HTTPS eta OpenVPN ziurtagiriak prozedura berarekin sortzen dira; xehetasunak [kudeaketa-atzipenaren](../kudeaketa-atzipena/README.md) eta [OpenVPN-en](../openvpn/README.md) dokumentazioan daude.
 
-## 9. Ziurtagirien banaketa
+## 9. Web zerbitzariaren ziurtagiria (www.talde1.lan)
+
+EN-ko DMZ-ko web zerbitzariak (`192.168.50.10`) HTTPS ziurtagiri bat behar du, PKI-ak sinatua. Perfila beste HTTPS ziurtagirien berdina da: `serverAuth` bakarrik, eta SAN-ean FQDN-a eta DMZ-ko IP-a.
+
+| | |
+|---|---|
+| CN | `www.talde1.lan` |
+| SAN | `DNS:www.talde1.lan`, `IP:192.168.50.10` |
+| EKU | `serverAuth` |
+| Iraupena | 398 egun |
+
+```bash
+cd /root/ca/intermediate
+cat > web-www.ext <<'EOF2'
+basicConstraints       = CA:FALSE
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth
+subjectAltName         = DNS:www.talde1.lan, IP:192.168.50.10
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid,issuer
+EOF2
+openssl req -new -newkey rsa:2048 -nodes -keyout private/web-www.key -out csr/web-www.csr \
+  -subj "/C=ES/O=Ugarteburu Torlojuak/OU=EN/CN=www.talde1.lan"
+openssl ca -config openssl.cnf -extfile web-www.ext -days 398 -notext \
+  -in csr/web-www.csr -out certs/web-www.crt
+```
+
+![Web ziurtagiria sinatzen](img/12-web-ziurtagiria.png)
+
+DMZ-a barne-sareetatik isolatuta dagoenez, ez dago SSH-rik EN-CertServ eta web zerbitzariaren artean: ziurtagiria, gakoa eta `ca-chain.crt` kontsola batetik bestera kopiatuta eraman ziren (xterm.js). Web zerbitzarian Apache-k erabiltzen du, 443 atakan.
+
+## 10. Ziurtagirien banaketa
 
 Ziurtagiriak eta gakoak ez dira sare irekitik bidaltzen. Testu-formatuan (PEM) daudenez, kopiatu eta itsatsi egiten dira kanal seguru batetik:
 
@@ -225,7 +256,7 @@ openssl rsa -aes256 -in private/vpn-u1.key -out private/vpn-u1-enc.key
 
 Bi suebakiek Root eta Intermediate CA-ren ziurtagiriak bakarrik jasotzen dituzte, gakorik gabe. Inportazioa [VPN dokumentazioan](../vpn/README.md) dago.
 
-## 10. Segurtasuna
+## 11. Segurtasuna
 
 - **Root CA offline:** Root CA-ren gako pribatua EN-RootCA makinan bakarrik dago, eta makina hori itzalita mantentzen da. EN-CertServ (online) makinak Intermediate-ren gakoa du soilik; `/root/ca/private/` hutsik dago, Root-en gakorik gabe. Hala ere, Intermediate-ak katea ondo balioztatzen du, eguneroko lanerako Root-en gakoa behar ez delako.
 
