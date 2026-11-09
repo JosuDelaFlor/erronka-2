@@ -10,6 +10,7 @@ Gailuen administrazioa izen bidez (FQDN) egiten da, ez IP bidez, eta kanal guzti
 | U1-PaloAlto-IT | WebGUI | `pa-it.talde1.lan` | `192.168.20.1` | ✅ |
 | EN-CertServ | SSH | `certserv.talde1.lan` | `192.168.111.20` | ✅ |
 | EN-MikroTik | WebGUI, SSH, Winbox | `mikrotik.talde1.lan` | `192.168.112.2` | ✅ |
+| EN-Web | HTTPS (web publikoa) | `www.talde1.lan` | `192.168.50.10` | ✅ |
 | U1-PaloAlto-OT | WebGUI | | | Egiteko (2. zatia) |
 | U1-DMZIT-XAMP | SSH | | | Egiteko (2. zatia) |
 | U1-DMZOT-Ubuntu | SSH | | | Egiteko (2. zatia) |
@@ -187,7 +188,42 @@ RouterOS 6-k bere ziurtagiria bakarrik bidaltzen du, katerik gabe; beraz bezeroa
 
 ![MikroTik kandatua](img/35-mk-mikrotik-kandatua.png)
 
-## 8. Egiteko
+## 8. Web zerbitzaria (DMZ) — HTTPS
+
+EN-ko DMZ-ko web zerbitzaria (`www.talde1.lan`, `192.168.50.10`) Docker edukiontzi batean dago, 8090 atakan eta HTTP soilean. HTTPS emateko, Apache **alderantzizko proxy** gisa konfiguratu da: 443 atakan entzuten du PKI-ko ziurtagiriarekin (`www.talde1.lan`, ikus [PKI dokumentazioa](../pki/README.md)), eta edukiontzira birbidaltzen du; 80 atakan 443-ra berbideratzen du. Edukiontziaren kodea ukitu gabe geratzen da.
+
+![Atakak: Apache 80/443, Docker 8090](img/36-web-ss-portuak.png)
+
+Apache-ren konfigurazioa (`/etc/apache2/sites-available/www-ssl.conf`):
+
+```apache
+<VirtualHost *:80>
+    ServerName www.talde1.lan
+    Redirect permanent / https://www.talde1.lan/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName www.talde1.lan
+    SSLEngine on
+    SSLCertificateFile      /etc/apache2/ssl/web-www.crt
+    SSLCertificateKeyFile   /etc/apache2/ssl/web-www.key
+    SSLCertificateChainFile /etc/apache2/ssl/ca-chain.crt
+    ProxyPreserveHost On
+    RequestHeader set X-Forwarded-Proto "https"
+    ProxyPass        / http://127.0.0.1:8090/
+    ProxyPassReverse / http://127.0.0.1:8090/
+</VirtualHost>
+```
+
+![Apache 443 proxy: curl localhost](img/37-web-apache-curl.png)
+
+**Argitalpena:** pfSense-k WAN-eko 80/443 DMZ-ko web zerbitzarira (`EN_WEB` = `192.168.50.10`) birbidaltzen ditu (DNAT), bakoitza bere firewall-arau elkartuarekin.
+
+**DNS:** `www.talde1.lan` → `192.168.50.10` AD-n. Domeinuko eta VPN-eko ekipoek izen bidez sartzen dira, nabigatzaileak PKI-an konfiantza duenez candadoarekin. Kanpotik (klaseko 74 sarea) ezin da izenez automatikoki, haiek ez baitute gure DNS-a erabiltzen; `hosts` fitxategian `192.168.74.1  www.talde1.lan` jarrita sartzen dira (DNS publikoaren simulazioa).
+
+![www.talde1.lan HTTPS candadoarekin](img/38-web-kandatua.png)
+
+## 9. Egiteko
 
 - PA-OT eta DMZ-ko zerbitzariak (2. zatia) prozedura berarekin.
 - Taldekide bakoitzak bere SSH gakoa izatea.
