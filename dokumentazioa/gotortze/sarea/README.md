@@ -11,7 +11,7 @@ Enpresak bi egoitza ditu, EN eta U1, eta biak klaseko sarearen bidez (`192.168.7
 EN-ko suebakia pfSense da (`192.168.74.1`), Proxmox-en (`192.168.74.11`) makina birtual gisa. Barneko sareak VLANetan banatuta daude, eta pfSense-tik MikroTik switchera trunk bidez iristen dira. VLAN bakoitzak bere zeregina du:
 
 - **110 BEZEROAK** (`192.168.110.0/24`): langileen ekipoak. IP-a DHCP bidez jasotzen dute.
-- **111 ZERBITZARIAK** (`192.168.111.0/24`): domeinu-kontrolatzailea (`.10`), PKI-a (Intermediate CA `.20` eta Root CA `.21`, normalean itzalita), pasahitz-kudeatzailea (`.30`) eta email-scripta (`.50`).
+- **111 ZERBITZARIAK** (`192.168.111.0/24`): domeinu-kontrolatzailea (`.10`), PKI-a (Intermediate CA `.20` eta Root CA `.21`, itzalita), pasahitz-kudeatzailea (`.30`) eta email-scripta (`.50`).
 - **112 SISTEMAK** (`192.168.112.0/24`): administratzaileen sarea.
 - **113 Q** (`192.168.113.0/24`): isolatutako sarea, ez du ezer ikusten.
 
