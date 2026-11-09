@@ -70,9 +70,34 @@ Arauak irakurterrazagoak izateko aliasak sortu dira: `BARNE_SAREAK` (sare pribat
 
 ## 7. NAT
 
-WAN-eko 80 eta 443 portuak DMZko web zerbitzarira (`EN_WEB`) birbideratzen dira. Irteerako NAT-a automatikoa da: barne-sare guztiak WAN-eko IP-arekin itzultzen dira.
+**DNAT:** WAN-eko 80 eta 443 portuak DMZko web zerbitzarira (`EN_WEB`) birbideratzen dira.
 
 ![Port Forward](img/11-nat-port-forward.png)
+
+**SNAT:** irteerako NAT-a eskuzkoa da (*Manual Outbound NAT*), Internetera irten behar duten sareak bakarrik WAN-eko IP-arekin itzultzeko. Modu automatikoak barne-sare guztiak itzultzen ditu, baita behar ez dutenak ere.
+
+| Sarea | SNAT | Zergatik |
+|---|---|---|
+| 110 BEZEROAK | ✅ | Erabiltzaileek nabigatzen dute |
+| 111 ZERBITZARIAK | ✅ | Eguneraketak, NTP, DNS |
+| 112 SISTEMAK | ✅ | Administrazioa |
+| 50 DMZ | ✅ | Web zerbitzariaren eguneraketak |
+| 113 Q | ❌ | Isolatuta |
+| 114 OpenVPN | ❌ | *Split tunnel*: bezeroen Internet trafikoa ez da hemendik pasatzen |
+
+Sareak `NAT_SAREAK` aliasean daude, eta arau bakarra dago. IPsec tuneleko trafikoa (U1-era) ez da itzultzen, ez baita WAN-etik zuzenean irteten.
+
+![NAT_SAREAK aliasa](img/11b-nat-alias.png)
+
+![Araua](img/11d-nat-araua.png)
+
+![Outbound NAT](img/11c-nat-outbound.png)
+
+Probak: ZERBITZARIAK-etik (EN-CertServ) eta SISTEMAK-etik Internetera irten daiteke.
+
+![Proba 111](img/11e-nat-proba-111.png)
+
+![Proba 112](img/11f-nat-proba-112.png)
 
 ## 8. Kudeaketa
 

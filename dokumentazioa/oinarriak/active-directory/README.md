@@ -123,3 +123,21 @@ Gune ezberdinen artean AD-k ez du berehala erreplikatzen, `DEFAULTIPSITELINK` lo
 DC bihurtu ondoren U1-WS DNS zerbitzaria ere bada. Microsoft-en gomendioari jarraituz, DNS nagusia beste DC-a da eta bigarrena bera (`127.0.0.1`). Horrela DC-a ez da bere buruarekin bakarrik geratzen berrabiaraztean, eta VPN-a erortzen bada bere DNS-a erabiltzen du.
 
 ![DNS finala](img/09-dns-finala.png)
+
+## 7. U1-eko ekipoak domeinuan
+
+U1-eko ekipoek bertako DC-a erabiltzen dute DNS nagusi gisa (`192.168.20.20`, eta `192.168.111.10` bigarren gisa). U1-admin domeinuan sartu ondoren, U1-WS aurkitzen du DC gisa eta `U1` gunean dago (`CLOSE_SITE`): saio-hasierak eta GPO-ak tokiko DC-tik egiten dira, VPN-tik pasa gabe.
+
+```
+nltest /dsgetdc:talde1.lan
+```
+
+![U1-admin-en DC-a](img/13-u1admin-dsgetdc.png)
+
+## 8. Arazo bat: klonatutako ekipoa
+
+SISTEMAK-eko administrazio-ekipoa Erabiltzaile1-en klon bat zen, eta izen bera zuen (`Erabiltzaile1-PC`). AD-n bi makinek ekipo-kontu bakarra partekatzen zuten; batek ekipo-kontuaren pasahitza aldatu zuenean (Windows-ek automatikoki egiten du 30 egunean behin), besteak domeinuarekiko konfiantza galdu zuen. Sintomak: GPO-ak ez ziren aplikatzen (ezta horma-papera ere), `gpupdate`-ek LDAP Bind errorea ematen zuen eta `nltest /sc_verify:talde1.lan`-ek `ERROR_ACCESS_DENIED`.
+
+Konponbidea: ekipoa domeinutik atera, izena aldatu (`SISTEMAK-WIN`) eta berriro sartu, AD-n kontu berri eta propioa izan dezan. Domeinuan dagoela izena aldatzeak ez du balio, kontu partekatua berrizendatuko luke eta beste makina hautsiko luke.
+
+**Ikasitakoa:** Windows ekipo bat klonatzean, domeinuan sartu aurretik `sysprep /generalize` exekutatu behar da (SID berria sortzeko) eta izena aldatu.
