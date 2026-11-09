@@ -101,6 +101,6 @@ Probak: ZERBITZARIAK-etik (EN-CertServ) eta SISTEMAK-etik Internetera irten dait
 
 ## 8. Kudeaketa
 
-WebGUI-a SISTEMAK saretik bakarrik eskuratu daiteke (`https://192.168.112.1`). Anti-lockout araua desgaitu da, sarbidea firewall arauek bakarrik kontrola dezaten.
+WebGUI-a izen bidez eskuratzen da, `https://pfsense.talde1.lan` (`192.168.112.1`), enpresako PKI-ak sinatutako ziurtagiriarekin (ikus [kudeaketa-atzipena](../kudeaketa-atzipena/README.md)). Administrazio-sareetatik bakarrik dago eskuragarri: SISTEMAK, OpenVPN eta U1-eko administrazio-ekipoa (IPsec tuneletik). Anti-lockout araua desgaitu da, sarbidea firewall arauek bakarrik kontrola dezaten. Hori egiaztatzeko probak [Zero Trust dokumentuan](../zero-trust/README.md) daude.
 
 ![Admin Access](img/12-admin-access.png)
