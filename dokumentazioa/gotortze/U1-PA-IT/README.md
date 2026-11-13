@@ -8,7 +8,7 @@ PA-VM IsardVDI-n dago. Lehen sare-txartela kudeaketa-ataka da, eta hurrengoak et
 
 ## 2. Hasierako konfigurazioa (CLI)
 
-Fabrikako konfiguraziotik abiatu da. Kontsolatik gutxieneko konfigurazioa egin da IT saretik web interfazera sartu ahal izateko; gainerakoa web interfazetik egin da.
+Fabrikako konfiguraziotik abiatu da. Kontsolatik gutxieneko konfigurazioa egin da IT saretik web interfazera sartu ahal izateko. Gainerakoa web interfazetik egin da.
 
 ```
 request system private-data-reset
