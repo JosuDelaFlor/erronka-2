@@ -13,7 +13,7 @@ EN-ko suebakia pfSense da (`192.168.74.1`). Makina birtual bat da, Proxmox-en (`
 Barneko sareak VLANetan banatuta daude. pfSense-tik MikroTik switchera trunk bidez iristen dira. VLAN bakoitzak bere funtzioa du:
 
 - **110 BEZEROAK** (`192.168.110.0/24`): langileen ekipoak. IP-a DHCP bidez jasotzen dute.
-- **111 ZERBITZARIAK** (`192.168.111.0/24`): domeinu-kontrolatzailea (`.10`), PKI-a (Intermediate CA `.20` eta Root CA `.21`, itzalita), pasahitz-kudeatzailea (`.30`) eta email-scripta (`.50`).
+- **111 ZERBITZARIAK** (`192.168.111.0/24`): domeinu-kontrolatzailea (`.10`), PKI-a (Intermediate CA `.20` eta Root CA `.21`, orain itzalita), pasahitz-kudeatzailea (`.30`) eta email-scripta (`.50`).
 - **112 SISTEMAK** (`192.168.112.0/24`): administratzaileen sarea.
 - **113 Q** (`192.168.113.0/24`): sare isolatua. Ez du beste sarerik ikusten.
 

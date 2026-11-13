@@ -253,10 +253,3 @@ sed -n '/<ca>/,/<\/ca>/p' pfsense-UDP4-1194-josu-config.ovpn | grep -v 'ca>' > u
 sudo cp ugarteburu-ca.crt /usr/local/share/ca-certificates/
 sudo update-ca-certificates
 ```
-
-## 8. Egiteko / hobekuntzak
-
-- iker erabiltzailearekin proba egin, eta hiru konexioak batera erakutsi (*Status › OpenVPN*).
-- LDAP-tik LDAPS-era pasatu (DC-arentzat PKI-ko ziurtagiri bat sortuz).
-- CRL-a argitaratu eta OpenVPN-en gaitu, ziurtagiriak errebokatu ahal izateko.
-- Proban zehar, Nerearen gako pribatua eta tls-crypt gakoa txat batean partekatu ziren. Benetako enpresa batean, ziurtagiri hori errebokatu eta tls-crypt gakoa berritu beharko litzateke.

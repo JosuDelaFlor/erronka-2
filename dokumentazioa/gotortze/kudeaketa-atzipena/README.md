@@ -6,16 +6,13 @@ Gailuak izenarekin (FQDN) administratzen dira, ez IP-arekin. Konexio guztiak seg
 - SSH zerbitzuetan gako bidez sartzen da, ez pasahitzarekin.
 - Administrazio-sareetatik bakarrik sar daiteke.
 
-| Gailua | Zerbitzua | FQDN | IP | Egoera |
-|---|---|---|---|---|
-| EN-pfSense | WebGUI | `pfsense.talde1.lan` | `192.168.112.1` | ✅ |
-| U1-PaloAlto-IT | WebGUI | `pa-it.talde1.lan` | `192.168.20.1` | ✅ |
-| EN-CertServ | SSH | `certserv.talde1.lan` | `192.168.111.20` | ✅ |
-| EN-MikroTik | WebGUI, SSH, Winbox | `mikrotik.talde1.lan` | `192.168.112.2` | ✅ |
-| EN-Web | HTTPS (web publikoa) | `www.talde1.lan` | `192.168.50.10` | ✅ |
-| U1-PaloAlto-OT | WebGUI | | | Egiteko (2. zatia) |
-| U1-DMZIT-XAMP | SSH | | | Egiteko (2. zatia) |
-| U1-DMZOT-Ubuntu | SSH | | | Egiteko (2. zatia) |
+| Gailua | Zerbitzua | FQDN | IP |
+|---|---|---|---|
+| EN-pfSense | WebGUI | `pfsense.talde1.lan` | `192.168.112.1` |
+| U1-PaloAlto-IT | WebGUI | `pa-it.talde1.lan` | `192.168.20.1` |
+| EN-CertServ | SSH | `certserv.talde1.lan` | `192.168.111.20` |
+| EN-MikroTik | WebGUI, SSH, Winbox | `mikrotik.talde1.lan` | `192.168.112.2` |
+| EN-Web | HTTPS (web publikoa) | `www.talde1.lan` | `192.168.50.10` |
 
 ## 1. DNS erregistroak
 
@@ -87,7 +84,7 @@ Emaitza: SISTEMAK-WIN-etik `https://pfsense.talde1.lan` abisurik gabe irekitzen 
 
 ![pfSense giltzarrapoa](img/12-pfsense-kandatua.png)
 
-Firefox-ek bere ziurtagiri-biltegia erabiltzen du, eta ez du GPO-ko Root CA-a ikusten. **Hobekuntza:** Firefox-en ADMX txantiloiekin *Importar raíces empresariales* politika gaitzea, GPO berean.
+Firefox-ek bere ziurtagiri-biltegia erabiltzen du, eta ez du GPO-ko Root CA-a ikusten.
 
 ## 5. PA-IT
 
@@ -259,9 +256,3 @@ Apache-ren konfigurazioa (`/etc/apache2/sites-available/www-ssl.conf`):
 - Kanpoko ekipoek (klaseko 74 sarea) ez dute gure DNS-a erabiltzen. Horregatik `hosts` fitxategian `192.168.74.1  www.talde1.lan` lerroa jarri behar dute. Horrela DNS publiko bat simulatzen dugu.
 
 ![www.talde1.lan HTTPS giltzarrapoarekin](img/38-web-kandatua.png)
-
-## 9. Egiteko
-
-- PA-OT eta DMZ-ko zerbitzariak (2. zatia), modu berean.
-- Taldekide bakoitzak bere SSH gakoa izatea.
-- Firefox-en *Importar raíces empresariales* GPO bidez gaitzea.

@@ -62,7 +62,7 @@ timedatectl        # System clock synchronized: yes
 
 ![Internetera irteera (HTTPS)](img/02-sarea-curl.png)
 
-EN-RootCA offline dagoenez, ez du sare-konfiguraziorik behar.
+EN-RootCA-k ere IP finkoa zuen hasieran (`192.168.111.21`), instalatzeko eta konfiguratzeko. Intermediate CA sinatu ondoren, sare-txartela deskonektatu eta makina itzali genuen.
 
 ## 3. Serie-kontsola (xterm.js)
 
@@ -309,4 +309,4 @@ cat /root/ca/intermediate/index.txt
 
 ![index.txt](img/08-index.png)
 
-**Hobekuntza:** CRL-a ez da oraindik inon argitaratzen. Horregatik suebakietan CRL/OCSP egiaztapena desgaituta dago. Hurrengo pausoa CRL-a EN-CertServ-etik HTTP bidez argitaratzea izango litzateke.
+**CRL:** CRL-a ez da oraindik inon argitaratzen. Horregatik suebakietan CRL/OCSP egiaztapena desgaituta dago.
