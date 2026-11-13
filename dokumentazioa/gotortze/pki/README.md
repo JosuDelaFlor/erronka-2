@@ -1,13 +1,14 @@
 # EN – PKI (Root CA + Intermediate CA)
 
-Ugarteburu Torlojuak · 2. Erronka
+Enpresako ziurtagiri guztiak (VPN, HTTPS…) enpresaren PKI-ak sortzen ditu, ez ekipoek beraiek. Bi mailako PKI bat da, eta bi makinatan banatuta dago:
 
-Enpresako ziurtagiri guztiak (VPN, HTTPS…) enpresaren PKI-ak sortzen ditu, ez ekipoetan bertan. Bi mailako PKI bat da, bi makinatan banatuta:
+- **EN-RootCA** (Root CA): Intermediate CA bakarrik sinatzen du. Hori egin ondoren, makina **itzalita** (offline) geratzen da. Horrela Root CA-ren gako pribatua ez dago sarera konektatuta, eta erasotzaile batek ezin du lortu.
+- **EN-CertServ** (Intermediate CA): piztuta (online) dago, eta egunero zerbitzuen ziurtagiriak sinatzen ditu (VPN, HTTPS…).
 
-- **EN-RootCA** — Root CA. Intermediate CA bakarrik sinatzen du. Hori eginda, makina **itzalita** (offline) mantentzen da: horrela Root CA-ren gako pribatua ez dago sarean konektatutako makina batean, eta erasotzaile batek ezin du eskuratu.
-- **EN-CertServ** — Intermediate CA. Online dago eta egunerokoan sinatzen ditu zerbitzu-ziurtagiriak (VPN, HTTPS…).
+Diseinu honen abantailak:
 
-Horrela Root CA-ren gakoa ia inoiz ez da erabiltzen, eta Intermediate CA arriskuan egonez gero, errebokatu eta berri bat sor daiteke Root-a ukitu gabe.
+- Root CA-ren gakoa ia inoiz ez da erabiltzen.
+- Intermediate CA arriskuan badago, errebokatu eta berri bat sor daiteke Root CA ukitu gabe.
 
 | | Root CA | Intermediate CA |
 |---|---|---|
@@ -15,15 +16,25 @@ Horrela Root CA-ren gakoa ia inoiz ez da erabiltzen, eta Intermediate CA arrisku
 | CN | Ugarteburu Root CA | Ugarteburu Intermediate CA |
 | Gakoa | RSA 4096, AES-256 bidez zifratuta | RSA 4096, AES-256 bidez zifratuta |
 | Iraupena | 20 urte | 10 urte |
-| Sinatzen du | Intermediate CA | Zerbitzu-ziurtagiriak (VPN, HTTPS…) |
+| Zer sinatzen du | Intermediate CA | Zerbitzuen ziurtagiriak (VPN, HTTPS…) |
 
 ## 1. Makina birtualak (Proxmox)
 
-**EN-CertServ** (Intermediate, online): Ubuntu Server 24.04 LTS, 2 vCPU, 2 GB RAM eta 20 GB-eko diskoa. Sare-txartela trunk-eko bridge-an dago, **VLAN tag 111**-rekin (ZERBITZARIAK). Serie-ataka bat ere badu, 3. atalean azaltzen den kontsolarako.
+**EN-CertServ** (Intermediate, online):
+
+- Ubuntu Server 24.04 LTS.
+- 2 vCPU, 2 GB RAM eta 20 GB-eko diskoa.
+- Sare-txartela trunk-eko bridge-an dago, **VLAN tag 111**-rekin (ZERBITZARIAK).
+- Serie-ataka bat ere badu, kontsolarako (ikus 3. atala).
 
 ![Proxmox hardwarea](img/01-proxmox-hardware.png)
 
-**EN-RootCA** (Root, offline): Ubuntu Server minimoa, 1 vCPU, 1 GB RAM. Intermediate CA sinatu ondoren itzalita dago, eta sare-txartela deskonektatuta. Soilik piztuko litzateke Intermediate berri bat edo CRL bat sinatu behar izanez gero.
+**EN-RootCA** (Root, offline):
+
+- Ubuntu Server minimoa.
+- 1 vCPU eta 1 GB RAM.
+- Intermediate CA sinatu ondoren itzali dugu, eta sare-txartela deskonektatuta dago.
+- Bakarrik piztuko da Intermediate berri bat edo CRL bat sinatu behar bada.
 
 ## 2. Sarea
 
@@ -36,9 +47,11 @@ EN-CertServ-ek IP finkoa du ZERBITZARIAK sarean:
 | Gateway | `192.168.111.1` (pfSense) |
 | DNS | `192.168.111.10` (AD) |
 
-pfSense-ko ZERBITZARIAK arauek DNS, NTP eta HTTP/HTTPS irteera bakarrik baimentzen dute (ikus [pfSense dokumentazioa](../pfsense/README.md)), eta horixe da zerbitzari honek behar duena: paketeak eguneratzea eta ordua sinkronizatzea. ICMP ez dagoenez baimenduta, konexioa `apt update` eta `curl` bidez egiaztatzen da.
+pfSense-n, ZERBITZARIAK sareak DNS, NTP eta HTTP/HTTPS bidez bakarrik irten daiteke (ikus [pfSense dokumentazioa](../pfsense/README.md)). Zerbitzari honek horixe behar du: paketeak eguneratzea eta ordua sinkronizatzea.
 
-Ordua zuzena izatea ezinbestekoa da PKI batean: ordua desegokia bada, ziurtagiriak "oraindik ez baliozko" edo "iraungita" gisa ikus daitezke.
+ICMP (ping) ez dago baimenduta. Horregatik konexioa `apt update` eta `curl` erabiliz egiaztatzen da.
+
+Ordua zuzena izatea oso garrantzitsua da PKI batean. Ordua gaizki badago, ziurtagiriak "oraindik ez baliozko" edo "iraungita" bezala ager daitezke.
 
 ```bash
 sudo timedatectl set-timezone Europe/Madrid
@@ -49,21 +62,23 @@ timedatectl        # System clock synchronized: yes
 
 ![Internetera irteera (HTTPS)](img/02-sarea-curl.png)
 
-EN-RootCA offline dagoenez, ez du sare-ezarpen iraunkorrik behar.
+EN-RootCA offline dagoenez, ez du sare-konfiguraziorik behar.
 
-## 3. Kontsola serie (xterm.js)
+## 3. Serie-kontsola (xterm.js)
 
-Proxmox-eko noVNC kontsolak ez du testua itsasten uzten, eta konfigurazio-fitxategiak luzeak dira. Horregatik VM-ei serie-ataka bat gehitu zaie (*Hardware › Add › Serial Port 0*) eta `getty` gaitu da bertan:
+Proxmox-eko noVNC kontsolan ezin da testua itsatsi, eta konfigurazio-fitxategiak luzeak dira. Horregatik makinei serie-ataka bat gehitu diegu (*Hardware › Add › Serial Port 0*) eta `getty` gaitu dugu:
 
 ```bash
 sudo systemctl enable serial-getty@ttyS0
 ```
 
-VM-a berrabiarazi ondoren, *Console › xterm.js* kontsolak kopiatu eta itsatsi ahalbidetzen du. Serie-kontsolak testu luzeak itsastean karaktereak gal ditzakeenez, fitxategiak zati txikitan sortu dira (`cat > … <<'EOF'` lehenengoa, `cat >> …` hurrengoak).
+Makina berrabiarazi ondoren, *Console › xterm.js* kontsolan kopiatu eta itsatsi daiteke.
 
-## 4. Direktorio-egitura
+Serie-kontsolak testu luzeetan karaktereak gal ditzake. Horregatik fitxategiak zati txikitan sortu ditugu: lehen zatia `cat > … <<'EOF'` bidez, eta hurrengoak `cat >> …` bidez.
 
-Makina bakoitzean dena `root`-en etxean dago, gainerako erabiltzaileek sarbiderik izan ez dezaten. Gako pribatuen karpetek `700` baimenak dituzte.
+## 4. Karpeten egitura
+
+Makina bakoitzean dena `root` erabiltzailearen etxean dago. Horrela beste erabiltzaileek ezin dute sartu. Gako pribatuen karpetek `700` baimenak dituzte.
 
 **EN-RootCA** (Root CA):
 
@@ -90,18 +105,21 @@ Makina bakoitzean dena `root`-en etxean dago, gainerako erabiltzaileek sarbideri
     └── index.txt, serial
 ```
 
-EN-CertServ-ek Root CA-ren **ziurtagiria** (`ca.crt`, publikoa) du katea osatzeko, baina **ez du Root-en gako pribatua**: hori EN-RootCA-n bakarrik dago.
+EN-CertServ-ek Root CA-ren **ziurtagiria** (`ca.crt`) du, katea osatzeko. Ziurtagiri hori publikoa da. Baina **ez du Root CA-ren gako pribatua**. Gako hori EN-RootCA-n bakarrik dago.
 
 ## 5. OpenSSL konfigurazioa
 
-`openssl.cnf` fitxategiak CA-ren bideak, `policy_loose` politika (CN derrigorrezkoa, gainerakoak aukerakoak) eta bi luzapen-profil definitzen ditu:
+`openssl.cnf` fitxategian hauek definitzen dira:
 
-- `v3_ca`: Root CA-rentzat (`CA:true`, `keyCertSign`, `cRLSign`).
-- `v3_intermediate_ca`: Intermediate CA-rentzat. `pathlen:0`-k esan nahi du Intermediate-k ezin duela beste CA bat sinatu, azken ziurtagiriak bakarrik.
+- CA-ren karpetak.
+- `policy_loose` politika: CN derrigorrezkoa da, eta beste eremuak aukerakoak.
+- Bi luzapen-profil:
+  - `v3_ca`: Root CA-rentzat (`CA:true`, `keyCertSign`, `cRLSign`).
+  - `v3_intermediate_ca`: Intermediate CA-rentzat. `pathlen:0` jartzen du. Horrek esan nahi du Intermediate-k ezin duela beste CA bat sinatu, azken ziurtagiriak bakarrik.
 
 ![openssl.cnf](img/03-openssl-cnf.png)
 
-Intermediate-ren konfigurazioa (EN-CertServ-en) bera da, bideak eta gakoaren izena aldatuta:
+Intermediate-ren konfigurazioa (EN-CertServ-en) berdina da. Karpetak eta gakoaren izena bakarrik aldatzen dira:
 
 ```bash
 sed -e 's#^dir *= /root/ca#dir           = /root/ca/intermediate#' \
@@ -112,7 +130,7 @@ sed -e 's#^dir *= /root/ca#dir           = /root/ca/intermediate#' \
 
 ## 6. Root CA (EN-RootCA)
 
-Gakoa AES-256 bidez zifratuta sortzen da, eta ziurtagiria autosinatua da:
+Gakoa AES-256 bidez zifratuta sortzen da. Ziurtagiria autosinatua da:
 
 ```bash
 cd /root/ca
@@ -121,7 +139,9 @@ openssl req -config openssl.cnf -key private/ca.key -new -x509 -days 7300 \
   -subj "/C=ES/O=Ugarteburu Torlojuak/CN=Ugarteburu Root CA" -out certs/ca.crt
 ```
 
-EN-RootCA-n gordetzen dira Root CA-ren fitxategiak. Gakoaren eta ziurtagiriaren modulus-en `md5` berdina da, biak bikote bat direla egiaztatuz:
+Root CA-ren fitxategiak EN-RootCA-n gordetzen dira.
+
+Gakoa eta ziurtagiria bikote bat direla egiaztatzeko, biei `modulus`-aren `md5` ateratzen zaie. Emaitza berdina izan behar da:
 
 ```bash
 openssl x509 -noout -modulus -in certs/ca.crt | openssl md5
@@ -134,7 +154,11 @@ openssl rsa  -noout -modulus -in private/ca.key | openssl md5
 
 ## 7. Intermediate CA (EN-CertServ)
 
-Intermediate-k bere gakoa eta CSR-a sortzen ditu EN-CertServ-en, eta **Root CA-k sinatzen du** (EN-RootCA-n) `v3_intermediate_ca` profilarekin. Ondoren `ca-chain.crt` sortzen da (Intermediate + Root), zerbitzuek kate osoa egiazta dezaten.
+Pausoak:
+
+1. EN-CertServ-en Intermediate-ren gakoa eta CSR-a sortzen dira.
+2. EN-RootCA-n **Root CA-k CSR-a sinatzen du**, `v3_intermediate_ca` profilarekin.
+3. EN-CertServ-en `ca-chain.crt` fitxategia sortzen da (Intermediate + Root). Horrela zerbitzuek kate osoa egiazta dezakete.
 
 ```bash
 # EN-CertServ-en: gakoa eta CSR-a
@@ -149,13 +173,13 @@ cat intermediate/certs/intermediate.crt certs/ca.crt > intermediate/certs/ca-cha
 openssl verify -CAfile certs/ca-chain.crt intermediate/certs/intermediate.crt
 ```
 
-Intermediate-ak katea ondo balioztatzen du (`OK`):
+Katea ondo dago (`OK`):
 
 ![Intermediate CA egiaztapena](img/05-intermediate-ca.png)
 
 ## 8. VPN ziurtagiriak
 
-Egoitzen arteko IPsec VPN-a ziurtagiriekin autentifikatzen da, ez gako partekatu batekin (PSK). Muturreko bakoitzak bere ziurtagiria du:
+Egoitzen arteko IPsec VPN-a ziurtagiriekin autentifikatzen da, ez gako partekatu batekin (PSK). Mutur bakoitzak bere ziurtagiria du:
 
 | | pfSense (EN) | PA-IT (U1) |
 |---|---|---|
@@ -164,11 +188,11 @@ Egoitzen arteko IPsec VPN-a ziurtagiriekin autentifikatzen da, ez gako partekatu
 | Gakoa | RSA 2048 | RSA 2048 |
 | Iraupena | 825 egun | 825 egun |
 
-Luzapenak `.ext` fitxategi batean definitzen dira muturreko bakoitzeko:
+Luzapenak `.ext` fitxategi batean daude, mutur bakoitzeko bat:
 
-- `basicConstraints = CA:FALSE`: azken ziurtagiria da, ezin du beste bat sinatu.
+- `basicConstraints = CA:FALSE`: azken ziurtagiria da. Ezin du beste ziurtagiririk sinatu.
 - `keyUsage = digitalSignature, keyEncipherment`: IKE negoziazioan sinatzeko.
-- `extendedKeyUsage = serverAuth, clientAuth, 1.3.6.1.5.5.8.2.2`: azken OID-a *IKE Intermediate* da, IPsec-erako. Bi muturrek hasi dezaketenez konexioa, server eta client biak gehitzen dira.
+- `extendedKeyUsage = serverAuth, clientAuth, 1.3.6.1.5.5.8.2.2`: azken OID-a *IKE Intermediate* da, IPsec-erako. Bi muturrek has dezakete konexioa. Horregatik server eta client biak jartzen dira.
 - `subjectAltName`: VPN-ko identitatea (FQDN) eta WAN IP-a. Phase 1-eko identitateak SAN honekin bat etorri behar du.
 
 ```bash
@@ -183,7 +207,7 @@ authorityKeyIdentifier = keyid,issuer
 EOF
 ```
 
-`vpn-u1.ext` berdina da, `DNS:vpn-u1.talde1.lan, IP:192.168.74.2`-rekin.
+`vpn-u1.ext` fitxategia berdina da, baina `DNS:vpn-u1.talde1.lan, IP:192.168.74.2` balioekin.
 
 ![VPN luzapenak](img/06-vpn-ext.png)
 
@@ -196,7 +220,7 @@ openssl ca -config openssl.cnf -extfile vpn-en.ext -days 825 -notext \
   -in csr/vpn-en.csr -out certs/vpn-en.crt
 ```
 
-(Berdin `vpn-u1`-rekin.) Egiaztapena:
+`vpn-u1`-rekin gauza bera egiten da. Egiaztapena:
 
 ```bash
 openssl verify -CAfile certs/ca-chain.crt certs/vpn-en.crt certs/vpn-u1.crt
@@ -210,11 +234,11 @@ openssl x509 -in certs/vpn-u1.crt -noout -subject -ext subjectAltName
 
 ![vpn-u1 ziurtagiria](img/07-vpn-u1.png)
 
-HTTPS eta OpenVPN ziurtagiriak prozedura berarekin sortzen dira; xehetasunak [kudeaketa-atzipenaren](../kudeaketa-atzipena/README.md) eta [OpenVPN-en](../openvpn/README.md) dokumentazioan daude.
+HTTPS eta OpenVPN ziurtagiriak modu berean sortzen dira. Xehetasunak [kudeaketa-atzipena](../kudeaketa-atzipena/README.md) eta [OpenVPN](../openvpn/README.md) dokumentuetan daude.
 
 ## 9. Web zerbitzariaren ziurtagiria (www.talde1.lan)
 
-EN-ko DMZ-ko web zerbitzariak (`192.168.50.10`) HTTPS ziurtagiri bat behar du, PKI-ak sinatua. Perfila beste HTTPS ziurtagirien berdina da: `serverAuth` bakarrik, eta SAN-ean FQDN-a eta DMZ-ko IP-a.
+EN-ko DMZ-ko web zerbitzariak (`192.168.50.10`) HTTPS ziurtagiri bat behar du, PKI-ak sinatua. Profila beste HTTPS ziurtagirien berdina da: `serverAuth` bakarrik, eta SAN-ean FQDN-a eta DMZ-ko IP-a.
 
 | | |
 |---|---|
@@ -241,29 +265,42 @@ openssl ca -config openssl.cnf -extfile web-www.ext -days 398 -notext \
 
 ![Web ziurtagiria sinatzen](img/12-web-ziurtagiria.png)
 
-DMZ-a barne-sareetatik isolatuta dagoenez, ez dago SSH-rik EN-CertServ eta web zerbitzariaren artean: ziurtagiria, gakoa eta `ca-chain.crt` kontsola batetik bestera kopiatuta eraman ziren (xterm.js). Web zerbitzarian Apache-k erabiltzen du, 443 atakan.
+DMZ-a barne-sareetatik isolatuta dago. Horregatik ez dago SSH-rik EN-CertServ eta web zerbitzariaren artean. Ziurtagiria, gakoa eta `ca-chain.crt` kontsola batetik bestera kopiatu genituen (xterm.js). Web zerbitzarian Apache-k erabiltzen ditu, 443 atakan.
 
 ## 10. Ziurtagirien banaketa
 
-Ziurtagiriak eta gakoak ez dira sare irekitik bidaltzen. Testu-formatuan (PEM) daudenez, kopiatu eta itsatsi egiten dira kanal seguru batetik:
+Ziurtagiriak eta gakoak ez dira sare irekitik bidaltzen. Testu formatuan (PEM) daudenez, kanal seguru batetik kopiatu eta itsatsi egiten dira.
 
-- **pfSense (EN):** SISTEMAK sareko administrazio-ekipotik SSH bidez sartzen da EN-CertServ-era, fitxategiak pantailaratzen dira eta pfSense-ren web interfazean itsasten dira. `pki` erabiltzaileak ezin duenez `/root` irakurri, EN-ko fitxategiak aldi baterako `/home/pki/en`-ra kopiatu ziren (`chmod 600` gakoarekin), eta gakoa ezabatu egin zen inportatu ondoren.
-- **PA-IT (U1):** U1-eko administrazio-ekipoa (`192.168.20.10`) da PA-IT kudeatu dezakeen bakarra, eta VPN-a oraindik ez dago. Fitxategiak xterm.js kontsolatik kopiatu eta U1-admin-en itsatsi ziren IsardVDI-ren SPICE bisorearen arbelaren bidez. Palo Alto-k gako pribatuak pasahitzarekin zifratuta bakarrik onartzen dituenez, gakoaren kopia zifratu bat sortu zen horretarako, eta inportatu ondoren ezabatu egin zen bai U1-admin-en bai EN-CertServ-en:
+**pfSense (EN):**
+
+1. SISTEMAK sareko administrazio-ekipotik SSH bidez sartzen gara EN-CertServ-era.
+2. Fitxategien edukia pantailan erakusten da, eta pfSense-ren web interfazean itsasten da.
+3. `pki` erabiltzaileak ezin du `/root` irakurri. Horregatik EN-ko fitxategiak denbora batez `/home/pki/en` karpetara kopiatu genituen (gakoa `chmod 600` baimenekin).
+4. Inportatu ondoren gakoa ezabatu genuen.
+
+**PA-IT (U1):**
+
+1. PA-IT kudeatu dezakeen ekipo bakarra U1-eko administrazio-ekipoa da (`192.168.20.10`). Une horretan VPN-a ez zegoen oraindik.
+2. Fitxategiak xterm.js kontsolatik kopiatu eta U1-admin-en itsatsi genituen, IsardVDI-ren SPICE bisorearen arbelaren bidez.
+3. Palo Alto-k gako pribatuak pasahitzarekin zifratuta bakarrik onartzen ditu. Horregatik gakoaren kopia zifratu bat sortu genuen:
 
 ```bash
 openssl rsa -aes256 -in private/vpn-u1.key -out private/vpn-u1-enc.key
 ```
 
-Bi suebakiek Root eta Intermediate CA-ren ziurtagiriak bakarrik jasotzen dituzte, gakorik gabe. Inportazioa [VPN dokumentazioan](../vpn/README.md) dago.
+4. Inportatu ondoren kopia hori ezabatu genuen, bai U1-admin-en bai EN-CertServ-en.
+
+Bi suebakiek Root eta Intermediate CA-ren ziurtagiriak bakarrik jasotzen dituzte, gakorik gabe. Inportazioa [VPN dokumentazioan](../vpn/README.md) azaltzen da.
 
 ## 11. Segurtasuna
 
-- **Root CA offline:** Root CA-ren gako pribatua EN-RootCA makinan bakarrik dago, eta makina hori itzalita mantentzen da. EN-CertServ (online) makinak Intermediate-ren gakoa du soilik; `/root/ca/private/` hutsik dago, Root-en gakorik gabe. Hala ere, Intermediate-ak katea ondo balioztatzen du, eguneroko lanerako Root-en gakoa behar ez delako.
+**Root CA offline:** Root CA-ren gako pribatua EN-RootCA makinan bakarrik dago, eta makina hori itzalita dago. EN-CertServ-ek (online) Intermediate-ren gakoa bakarrik du. `/root/ca/private/` karpeta hutsik dago. Hala ere, Intermediate-k katea ondo egiaztatzen du, eguneroko lanerako ez delako Root-en gakoa behar.
 
 ![EN-CertServ-ek ez du Root-en gakorik](img/10-offline-root.png)
 
-- CA-en gako pribatuak AES-256 bidez zifratuta daude. Pasahitzak pasahitz-kudeatzailean daude.
-- `index.txt` fitxategian sinatutako ziurtagiri guztien erregistroa dago. VPN ziurtagirien lehen bertsioa domeinu okerrarekin sortu zen; ziurtagiri horiek errebokatu (`R`) eta berriak sortu ziren (`V`).
+**Gakoak zifratuta:** CA-en gako pribatuak AES-256 bidez zifratuta daude. Pasahitzak pasahitz-kudeatzailean daude.
+
+**Erregistroa:** `index.txt` fitxategian sinatutako ziurtagiri guztiak daude. VPN ziurtagirien lehen bertsioa domeinu okerrarekin sortu zen. Ziurtagiri horiek errebokatu (`R`) eta berriak sortu genituen (`V`).
 
 ```bash
 openssl ca -config openssl.cnf -revoke certs/vpn-en.crt
@@ -272,4 +309,4 @@ cat /root/ca/intermediate/index.txt
 
 ![index.txt](img/08-index.png)
 
-- **Hobekuntza:** CRL-a ez da oraindik inon argitaratzen, eta horregatik suebakietan CRL/OCSP egiaztapena desgaituta dago. Hurrengo pausoa CRL-a EN-CertServ-etik HTTP bidez argitaratzea litzateke.
+**Hobekuntza:** CRL-a ez da oraindik inon argitaratzen. Horregatik suebakietan CRL/OCSP egiaztapena desgaituta dago. Hurrengo pausoa CRL-a EN-CertServ-etik HTTP bidez argitaratzea izango litzateke.

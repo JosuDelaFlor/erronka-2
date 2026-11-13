@@ -1,7 +1,5 @@
 # Active Directory – U1-eko domeinu-kontrolatzailea
 
-Ugarteburu Torlojuak · 2. Erronka
-
 ## 1. Diseinua
 
 Ugarteburu enpresa bakarra da bi fabrikarekin, beraz domeinu bakarra dago bi egoitzetarako: `talde1.lan`. Egoitza bakoitzak bere domeinu-kontrolatzailea du:

@@ -2,11 +2,18 @@
 
 ## 1. Makina birtuala (IsardVDI)
 
-PA-VM IsardVDI-n dago, PA-IT-ren txantiloi beretik sortuta (2 vCPU, Isard-eko kuota dela eta). Lehen sare-txartela kudeaketa-ataka da (Default); ethernet1/1 U1-IT sarean (Ziber-T12) dago, eta hortik konektatzen da PA-IT-ra. ethernet1/2 U1-OT (Ziber-T13) eta ethernet1/3 U1-DMZOT (Ziber-T14) dira.
+PA-VM suebakia IsardVDI-n dago. PA-IT-ren txantiloi beretik sortu dugu, 2 vCPU-rekin (Isard-eko kuotagatik).
+
+Sare-txartelak honela daude:
+
+- Lehen txartela kudeaketa-ataka da (Default sarea).
+- ethernet1/1 U1-IT sarean dago (Ziber-T12). Hortik konektatzen da PA-IT-ra.
+- ethernet1/2 U1-OT sarean dago (Ziber-T13).
+- ethernet1/3 U1-DMZOT sarean dago (Ziber-T14).
 
 ## 2. Hasierako konfigurazioa (CLI)
 
-Fabrikako konfiguraziotik abiatu da. Kontsolatik gutxieneko konfigurazioa egin da IT saretik web interfazera sartu ahal izateko; gainerakoa web interfazetik egin da.
+Fabrikako konfiguraziotik hasi gara. Kontsolatik gutxieneko konfigurazioa egin dugu, IT saretik web interfazera sartu ahal izateko. Gainerako guztia web interfazetik egin dugu.
 
 ```
 request system private-data-reset
@@ -23,19 +30,22 @@ commit
 
 ## 3. Zonak
 
-Sare bakoitza bere zonan dago (U1-IT, U1-OT eta U1-DMZOT), IT eta OT arteko trafiko guztia segurtasun-politiken bidez kontrolatzeko.
+Sare bakoitza bere zonan dago: U1-IT, U1-OT eta U1-DMZOT. Horrela, IT eta OT arteko trafiko guztia segurtasun-politiken bidez kontrolatzen da.
 
 ![03-zonak](img/03-zonak-1.png)
 
 ## 4. Interfazeak
 
-Interfaze guztiak Layer3 moduan daude, eta PA-OT da OT eta DMZ-OT sareen gateway-a. Kudeaketa-profila IT aldeko interfazean soilik dago; OT eta DMZ-OT interfazeek ez dute administrazio-zerbitzurik eskaintzen.
+Interfaze guztiak Layer3 moduan daude. PA-OT da OT eta DMZ-OT sareen gateway-a.
+
+Kudeaketa-profila IT aldeko interfazean bakarrik dago. OT eta DMZ-OT interfazeetatik ezin da suebakia administratu.
 
 ![04-interfazeak](img/04-interfazeak-1.png)
 
 ## 5. Kudeaketa-profila
 
-Administrazioa HTTPS eta SSH bidez soilik egiten da (HTTP eta Telnet desgaituta), eta administrazio-ekipotik (192.168.20.10) bakarrik.
+Suebakia HTTPS eta SSH bidez bakarrik administratzen da. HTTP eta Telnet desgaituta daude. Gainera, administrazio-ekipotik (192.168.20.10) bakarrik sar daiteke.
+
 ![05-kudeaketa](img/05-kudeaketa-1.png)
 
 ## 6. Bideratzea
@@ -46,7 +56,7 @@ Ibilbide lehenetsiak OT aldetik irteten den trafikoa PA-IT-ra (192.168.20.1) bid
 
 ## 7. Sistema
 
-Hostname-ak gailua identifikatzen du kudeaketan eta log-etan. DNS zerbitzariak suebakiaren beraren izen-ebazpenerako dira.
+Hostname-ari esker gailua erraz identifikatzen da kudeaketan eta log-etan. DNS zerbitzariak suebakiak berak izenak ebazteko erabiltzen ditu.
 
 ![07-sistema](img/07-sistema-1.png)
 
@@ -54,31 +64,45 @@ Hostname-ak gailua identifikatzen du kudeaketan eta log-etan. DNS zerbitzariak s
 
 ## 8. Segurtasun-politikak
 
-IT eta OT sareak bereizita daude. DMZ-OT-tik OT sarera ez dago komunikaziorik, eta IT-tik DMZ-OT-ra SSH bidezko administrazioa baino ez da baimentzen, administrazio-ekipotik bakarrik. Gainerako trafikoa interzone-default arauak ukatzen du eta log-etan erregistratzen da. Ez dago NAT-ik: OT sareek ez dute Internetera irteerarik.
+IT eta OT sareak bereizita daude.
+
+- DMZ-OT-tik ezin da OT sarera sartu.
+- IT-tik DMZ-OT-ra SSH bidezko administrazioa bakarrik baimentzen da, eta administrazio-ekipotik bakarrik.
+
+Gainerako trafikoa interzone-default arauak blokeatzen du, eta log-etan gordetzen da.
+
+Ez dago NAT-ik. OT sareek ezin dute Internetera irten.
 
 ![08-segurtasun-politikak](img/08-segurtasun-politikak-1.png)
 
 ## 9. Pasahitz-politika
 
-Administratzaileen pasahitzek gutxienez 8 karaktere eta karaktere-mota guztiak izan behar dituzte; 90 egunean behin aldatu behar dira eta ezin dira azken 5ak berrerabili.
+Administratzaileen pasahitzek arau hauek bete behar dituzte:
+
+- Gutxienez 8 karaktere.
+- Karaktere mota guztiak (maiuskulak, minuskulak, zenbakiak eta ikurrak).
+- 90 egunean behin aldatu behar dira.
+- Ezin dira azken 5 pasahitzak berrerabili.
 
 ![09-pasahitz-politika](img/09-pasahitz-politika-1.png)
 
 ## 10. Autentifikazio-ezarpenak
 
-5 saiakera huts egin ondoren kontua 10 minutuz blokeatzen da, indar hutsezko erasoak saihesteko. Erabili gabeko saioak 10 minuturen buruan ixten dira.
+5 saiakera oker egin ondoren, kontua 10 minutuz blokeatzen da. Horrela indar hutsezko erasoak saihesten dira. Saio bat 10 minutuz erabili gabe badago, automatikoki ixten da.
 
 ![10-autentifikazio-ezarpenak](img/10-autentifikazio-ezarpenak-1.png)
 
 ## 11. Administratzaileak
 
-Taldekide bakoitzak bere erabiltzailea du, log-etan nork zer egin duen jakiteko. admin kontua larrialdietarako gordetzen da. Pasahitz guztiak pasahitz-kudeatzailean daude.
+Taldekide bakoitzak bere erabiltzailea du. Horrela log-etan ikus daiteke nork zer egin duen. admin kontua larrialdietarako bakarrik erabiltzen da. Pasahitz guztiak pasahitz-kudeatzailean gordeta daude.
 
 ![11-administratzaileak](img/11-administratzaileak-1.png)
 
 ## 12. PA-IT: OT sareetarako ibilbideak
 
-PA-IT-n OT eta DMZ-OT sareetarako ibilbide estatikoak gehitu dira, next hop PA-OT (192.168.20.254) dela. Horrela, sare horietara doan trafikoa PA-OT-ra bidaltzen da eta ez WAN-era; sarbidea PA-OT-ren politikek kontrolatzen dute.
+PA-IT-n ibilbide estatikoak gehitu ditugu OT eta DMZ-OT sareetarako. Hurrengo jauzia (next hop) PA-OT da (192.168.20.254).
+
+Horrela, sare horietara doan trafikoa PA-OT-ra joaten da, eta ez WAN-era. Sarbidea PA-OT-ren politikek kontrolatzen dute.
 
 ![12-pa-it-ibilbideak](img/12-pa-it-ibilbideak-1.png)
 
@@ -86,7 +110,7 @@ PA-IT-n OT eta DMZ-OT sareetarako ibilbide estatikoak gehitu dira, next hop PA-O
 
 ## 13. Administrazio-ekipoa
 
-PA-OT administrazio-ekipoaren sare berean dagoenez (U1-IT), ekipoan ibilbide iraunkorrak gehitu dira, OT sareetarako trafikoa zuzenean PA-OT-ra joan dadin eta joan-etorriko bideak berdinak izan daitezen.
+PA-OT eta administrazio-ekipoa sare berean daude (U1-IT). Horregatik ekipoan ibilbide iraunkorrak gehitu ditugu. Horrela OT sareetarako trafikoa zuzenean PA-OT-ra doa, eta joan-etorriak bide beretik egiten dira.
 
 ```
 route -p add 192.168.30.0 mask 255.255.255.0 192.168.20.254
